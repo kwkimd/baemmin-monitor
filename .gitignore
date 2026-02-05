@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# 로컬 실행 결과
+screenshots/
+logs/
+*.log
+
+# 인증 파일 (절대 업로드 금지!)
+credentials.json
+*.json.bak
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 테스트
+.pytest_cache/
+htmlcov/
