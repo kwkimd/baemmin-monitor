@@ -1,0 +1,69 @@
+name: 배민외식업광장 슬롯 모니터링
+
+on:
+  schedule:
+    - cron: '0 1 * * *'  # 매일 오전 10시 (KST)
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      # Chrome 설치 (undetected-chromedriver용)
+      - name: Setup Chrome
+        run: |
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+          google-chrome --version
+
+      # 디스플레이 설정 (헤드리스 모드 지원)
+      - name: Setup display
+        run: |
+          sudo apt-get install -y xvfb
+          export DISPLAY=:99
+          Xvfb :99 -screen 0 1920x1080x24 &
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create Google credentials
+        run: |
+          echo '${{ secrets.GOOGLE_CREDENTIALS }}' > credentials.json
+
+      - name: Run monitoring
+        env:
+          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
+          TARGET_URL: ${{ secrets.TARGET_URL }}
+          DISPLAY: ':99'
+        run: |
+          python main.py
+
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots-${{ github.run_number }}
+          path: screenshots/
+          retention-days: 7
+
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: logs-${{ github.run_number }}
+          path: logs/
+          retention-days: 30
