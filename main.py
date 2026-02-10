@@ -9,8 +9,11 @@ import json
 import time
 import logging
 import requests
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
+
+# 한국 시간대 (KST = UTC+9)
+KST = timezone(timedelta(hours=9))
 
 import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
@@ -53,7 +56,8 @@ def setup_logging():
     """로깅 설정"""
     Config.LOGS_DIR.mkdir(exist_ok=True)
     
-    log_filename = Config.LOGS_DIR / f"monitor_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+    now_kst = datetime.now(KST)
+    log_filename = Config.LOGS_DIR / f"monitor_{now_kst.strftime('%Y%m%d_%H%M%S')}.log"
     
     logging.basicConfig(
         level=logging.INFO,
@@ -127,10 +131,11 @@ class BaeminMonitor:
     def __init__(self, logger):
         self.logger = logger
         self.driver = None
+        now_kst = datetime.now(KST)
         self.results = {
-            'timestamp': datetime.now().isoformat(),
-            'date': datetime.now().strftime('%Y-%m-%d'),
-            'time': datetime.now().strftime('%H:%M:%S'),
+            'timestamp': now_kst.isoformat(),
+            'date': now_kst.strftime('%Y-%m-%d'),
+            'time': now_kst.strftime('%H:%M:%S'),
             'url': Config.TARGET_URL,
             'status': 'pending',
             'access_status': 'unknown',
@@ -332,7 +337,8 @@ class BaeminMonitor:
         """스크린샷 저장"""
         Config.SCREENSHOTS_DIR.mkdir(exist_ok=True)
         
-        filename = Config.SCREENSHOTS_DIR / f"screenshot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+        now_kst = datetime.now(KST)
+        filename = Config.SCREENSHOTS_DIR / f"screenshot_{now_kst.strftime('%Y%m%d_%H%M%S')}.png"
         
         try:
             self.driver.save_screenshot(str(filename))
@@ -455,8 +461,9 @@ def main():
     
     logger = setup_logging()
     
+    now_kst = datetime.now(KST)
     logger.info("🎯 배민외식업광장 모니터링 시작 (undetected-chromedriver)")
-    logger.info(f"📅 실행 시간: {datetime.now().isoformat()}")
+    logger.info(f"📅 실행 시간 (KST): {now_kst.strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info(f"🌐 대상 URL: {Config.TARGET_URL}")
     
     monitor = BaeminMonitor(logger)
@@ -466,7 +473,8 @@ def main():
     save_to_sheets(results, logger)
     
     # JSON 저장
-    results_file = Config.LOGS_DIR / f"results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    now_kst = datetime.now(KST)
+    results_file = Config.LOGS_DIR / f"results_{now_kst.strftime('%Y%m%d_%H%M%S')}.json"
     with open(results_file, 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=2, default=str)
     
