@@ -7,7 +7,7 @@ on:
 
 jobs:
   monitor:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     
     steps:
       - name: Checkout repository
@@ -19,21 +19,25 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      # Chrome 설치 (undetected-chromedriver용)
+      # 안정적인 Chrome 버전 설치
       - name: Setup Chrome
-        run: |
-          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
-          google-chrome --version
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 130
 
-      # 디스플레이 설정 (헤드리스 모드 지원)
+      # ChromeDriver 설치 (Chrome 버전과 맞춤)
+      - name: Setup ChromeDriver
+        uses: nanasess/setup-chromedriver@v2
+        with:
+          chromedriver-version: '130.0.6723.69'
+
+      # 디스플레이 설정
       - name: Setup display
         run: |
+          sudo apt-get update
           sudo apt-get install -y xvfb
-          export DISPLAY=:99
           Xvfb :99 -screen 0 1920x1080x24 &
+          echo "DISPLAY=:99" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: |
