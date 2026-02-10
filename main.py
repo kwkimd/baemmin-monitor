@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 배민외식업광장 슬롯 모니터링 시스템
-GitHub Actions 버전 - 클라우드에서 자동 실행
+GitHub Actions 버전 - 쿠키 로그인 지원
 """
 
 import os
@@ -30,14 +30,17 @@ from sheets_manager import GoogleSheetsManager
 class Config:
     """설정 클래스 - 환경변수에서 읽어옴"""
     
-    # 모니터링 대상 URL (환경변수 또는 기본값)
+    # 모니터링 대상 URL
     TARGET_URL = os.getenv(
         'TARGET_URL', 
-        'https://ceo.baemin.com/guide'  # 배민사장님광장 가이드
+        'https://ceo.baemin.com'
     )
     
-    # Google Sheets ID (환경변수에서)
+    # Google Sheets ID
     SPREADSHEET_ID = os.getenv('SPREADSHEET_ID', '')
+    
+    # 쿠키 (환경변수에서 JSON 문자열로)
+    COOKIES_JSON = os.getenv('BAEMIN_COOKIES', '')
     
     # 타임아웃 설정
     PAGE_LOAD_TIMEOUT = 30
@@ -47,13 +50,14 @@ class Config:
     SCREENSHOTS_DIR = Path('screenshots')
     LOGS_DIR = Path('logs')
     
-    # 슬롯 CSS 선택자 (실제 사이트 구조에 맞게 수정 필요)
+    # 슬롯 CSS 선택자 (배민외식업광장에 맞게 조정)
     SLOT_SELECTORS = {
-        'main_banner': '.main-banner, .hero-banner, [class*="banner"]',
-        'content_cards': '.card, .content-card, [class*="card"]',
-        'menu_items': '.menu-item, .nav-item, [class*="menu"]',
+        'main_banner': '.main-banner, .banner, [class*="banner"], [class*="slide"]',
+        'content_cards': '.card, .content-card, [class*="card"], [class*="article"]',
+        'menu_items': '.menu-item, .nav-item, [class*="menu"], [class*="nav"]',
         'links': 'a[href]',
         'images': 'img[src]',
+        'sections': 'section, [class*="section"]',
     }
 
 
@@ -85,7 +89,7 @@ def create_browser():
     
     options = Options()
     
-    # 헤드리스 모드 (필수 - 서버에는 화면이 없음)
+    # 헤드리스 모드
     options.add_argument('--headless=new')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
@@ -99,7 +103,7 @@ def create_browser():
     options.add_experimental_option('excludeSwitches', ['enable-automation'])
     options.add_experimental_option('useAutomationExtension', False)
     
-    # User-Agent 설정
+    # User-Agent 설정 (실제 브라우저처럼)
     options.add_argument(
         'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
         'AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -131,6 +135,62 @@ def create_browser():
 
 
 # ============================================================
+# 쿠키 로드
+# ============================================================
+def load_cookies(driver, logger):
+    """환경변수에서 쿠키 로드하여 브라우저에 추가"""
+    
+    if not Config.COOKIES_JSON:
+        logger.warning("⚠️ BAEMIN_COOKIES 환경변수가 설정되지 않음")
+        return False
+    
+    try:
+        cookies = json.loads(Config.COOKIES_JSON)
+        logger.info(f"📦 {len(cookies)}개의 쿠키 로드 중...")
+        
+        # 먼저 도메인에 접속해야 쿠키 설정 가능
+        driver.get("https://ceo.baemin.com")
+        time.sleep(2)
+        
+        # 쿠키 추가
+        for cookie in cookies:
+            try:
+                cookie_dict = {
+                    'name': cookie['name'],
+                    'value': cookie['value'],
+                    'domain': cookie.get('domain', '.baemin.com'),
+                }
+                
+                # 선택적 필드
+                if 'path' in cookie:
+                    cookie_dict['path'] = cookie['path']
+                else:
+                    cookie_dict['path'] = '/'
+                    
+                if 'secure' in cookie:
+                    cookie_dict['secure'] = cookie['secure']
+                    
+                if 'httpOnly' in cookie:
+                    cookie_dict['httpOnly'] = cookie['httpOnly']
+                
+                driver.add_cookie(cookie_dict)
+                logger.debug(f"  ✓ 쿠키 추가: {cookie['name']}")
+                
+            except Exception as e:
+                logger.warning(f"  ⚠️ 쿠키 추가 실패 ({cookie.get('name', 'unknown')}): {e}")
+        
+        logger.info("✅ 쿠키 로드 완료")
+        return True
+        
+    except json.JSONDecodeError as e:
+        logger.error(f"❌ 쿠키 JSON 파싱 오류: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"❌ 쿠키 로드 오류: {e}")
+        return False
+
+
+# ============================================================
 # 모니터링 클래스
 # ============================================================
 class BaeminMonitor:
@@ -145,6 +205,7 @@ class BaeminMonitor:
             'time': datetime.now().strftime('%H:%M:%S'),
             'url': Config.TARGET_URL,
             'status': 'pending',
+            'login_status': 'unknown',
             'slots': [],
             'broken_links': [],
             'total_slots': 0,
@@ -164,6 +225,30 @@ class BaeminMonitor:
         if self.driver:
             self.driver.quit()
             self.logger.info("🛑 브라우저 종료")
+    
+    def login_with_cookies(self):
+        """쿠키로 로그인"""
+        self.logger.info("🔐 쿠키로 로그인 시도 중...")
+        
+        if load_cookies(self.driver, self.logger):
+            # 페이지 새로고침하여 쿠키 적용
+            self.driver.refresh()
+            time.sleep(3)
+            
+            # 로그인 상태 확인
+            page_source = self.driver.page_source
+            
+            if '로그인' in page_source and '보안' in page_source:
+                self.logger.warning("⚠️ 로그인 실패 - 여전히 로그인 페이지")
+                self.results['login_status'] = 'failed'
+                return False
+            else:
+                self.logger.info("✅ 로그인 성공!")
+                self.results['login_status'] = 'success'
+                return True
+        else:
+            self.results['login_status'] = 'no_cookies'
+            return False
     
     def load_page(self):
         """페이지 로드"""
@@ -198,17 +283,14 @@ class BaeminMonitor:
     def _scroll_page(self):
         """페이지 스크롤 (lazy loading 처리)"""
         try:
-            # 전체 높이 가져오기
             total_height = self.driver.execute_script(
                 "return document.body.scrollHeight"
             )
             
-            # 스크롤 다운
             for i in range(0, total_height, 500):
                 self.driver.execute_script(f"window.scrollTo(0, {i});")
                 time.sleep(0.3)
             
-            # 맨 위로 돌아가기
             self.driver.execute_script("window.scrollTo(0, 0);")
             time.sleep(1)
             
@@ -226,7 +308,7 @@ class BaeminMonitor:
             try:
                 elements = self.driver.find_elements(By.CSS_SELECTOR, selector)
                 
-                for elem in elements[:20]:  # 최대 20개
+                for elem in elements[:20]:
                     try:
                         slot_info = {
                             'index': f'S{slot_index:02d}',
@@ -236,11 +318,9 @@ class BaeminMonitor:
                             'visible': elem.is_displayed(),
                         }
                         
-                        # 링크인 경우 href 추출
                         if elem.tag_name == 'a':
                             slot_info['href'] = elem.get_attribute('href') or ''
                         
-                        # 이미지인 경우 src 추출
                         if elem.tag_name == 'img':
                             slot_info['src'] = elem.get_attribute('src') or ''
                             slot_info['alt'] = elem.get_attribute('alt') or ''
@@ -267,7 +347,7 @@ class BaeminMonitor:
             checked_urls = set()
             broken_links = []
             
-            for link in links[:50]:  # 최대 50개 링크 확인
+            for link in links[:50]:
                 try:
                     url = link.get_attribute('href')
                     
@@ -279,7 +359,6 @@ class BaeminMonitor:
                     
                     checked_urls.add(url)
                     
-                    # 링크 상태 확인 (HEAD 요청으로 빠르게)
                     try:
                         response = requests.head(
                             url, 
@@ -329,7 +408,6 @@ class BaeminMonitor:
         filename = Config.SCREENSHOTS_DIR / f"screenshot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
         
         try:
-            # 전체 페이지 스크린샷
             self.driver.save_screenshot(str(filename))
             self.logger.info(f"📸 스크린샷 저장: {filename}")
             self.results['screenshot'] = str(filename)
@@ -349,6 +427,9 @@ class BaeminMonitor:
         try:
             self.start()
             
+            # 쿠키로 로그인 시도
+            self.login_with_cookies()
+            
             if self.load_page():
                 self.get_page_info()
                 self.extract_slots()
@@ -357,7 +438,7 @@ class BaeminMonitor:
                 self.results['status'] = 'success'
             else:
                 self.results['status'] = 'failed'
-                self.take_screenshot()  # 실패 화면도 캡처
+                self.take_screenshot()
             
         except Exception as e:
             self.logger.error(f"❌ 모니터링 오류: {e}")
@@ -383,20 +464,19 @@ def save_to_sheets(results, logger):
     try:
         sheets = GoogleSheetsManager(Config.SPREADSHEET_ID)
         
-        # 메인 데이터 행
         row_data = [
             results['date'],
             results['time'],
             results.get('page_title', ''),
             results['status'],
+            results.get('login_status', 'unknown'),
             results['total_slots'],
             results['total_links'],
             results['broken_link_count'],
-            ', '.join([bl['url'] for bl in results['broken_links'][:5]]),  # 깨진 링크 (최대 5개)
+            ', '.join([bl['url'] for bl in results['broken_links'][:5]]),
             ', '.join(results['errors'][:3]) if results['errors'] else '',
         ]
         
-        # 슬롯 정보 추가 (최대 10개)
         for i, slot in enumerate(results['slots'][:10]):
             row_data.extend([
                 slot.get('type', ''),
@@ -423,6 +503,7 @@ def print_summary(results, logger):
     logger.info("=" * 60)
     logger.info(f"📅 날짜: {results['date']} {results['time']}")
     logger.info(f"🌐 URL: {results['url']}")
+    logger.info(f"🔐 로그인: {results.get('login_status', 'unknown')}")
     logger.info(f"📋 상태: {results['status']}")
     logger.info(f"📦 슬롯 수: {results['total_slots']}")
     logger.info(f"🔗 링크 수: {results['total_links']}")
@@ -447,30 +528,24 @@ def print_summary(results, logger):
 def main():
     """메인 함수"""
     
-    # 로깅 설정
     logger = setup_logging()
     
     logger.info("🎯 배민외식업광장 모니터링 시작")
     logger.info(f"📅 실행 시간: {datetime.now().isoformat()}")
     logger.info(f"🌐 대상 URL: {Config.TARGET_URL}")
     
-    # 모니터링 실행
     monitor = BaeminMonitor(logger)
     results = monitor.run()
     
-    # 결과 요약
     print_summary(results, logger)
     
-    # Google Sheets 저장
     save_to_sheets(results, logger)
     
-    # 결과 JSON 저장 (디버깅용)
     results_file = Config.LOGS_DIR / f"results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
     with open(results_file, 'w', encoding='utf-8') as f:
         json.dump(results, f, ensure_ascii=False, indent=2, default=str)
     logger.info(f"📄 결과 JSON 저장: {results_file}")
     
-    # 종료 코드 설정
     if results['status'] == 'success':
         logger.info("✅ 모니터링 완료!")
         return 0
