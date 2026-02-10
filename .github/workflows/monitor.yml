@@ -7,7 +7,7 @@ on:
 
 jobs:
   monitor:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     
     steps:
       - name: Checkout repository
@@ -18,18 +18,6 @@ jobs:
         with:
           python-version: '3.11'
           cache: 'pip'
-
-      # 안정적인 Chrome 버전 설치
-      - name: Setup Chrome
-        uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: 130
-
-      # ChromeDriver 설치 (Chrome 버전과 맞춤)
-      - name: Setup ChromeDriver
-        uses: nanasess/setup-chromedriver@v2
-        with:
-          chromedriver-version: '130.0.6723.69'
 
       # 디스플레이 설정
       - name: Setup display
@@ -43,6 +31,11 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
+
+      # Chrome 버전 확인
+      - name: Check Chrome version
+        run: |
+          google-chrome --version || echo "Chrome not found, will use webdriver-manager"
 
       - name: Create Google credentials
         run: |
