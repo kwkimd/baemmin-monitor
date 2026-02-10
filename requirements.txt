@@ -1,10 +1,6 @@
 # 배민외식업광장 모니터링 - 필요한 라이브러리
-# undetected-chromedriver 버전
 
-# 봇 탐지 우회 Selenium
-undetected-chromedriver>=3.5.4
-
-# Selenium (기본)
+# Selenium
 selenium>=4.15.0
 
 # Google Sheets API
