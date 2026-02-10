@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 배민외식업광장 슬롯 모니터링 시스템
-GitHub Actions 버전 - undetected-chromedriver로 봇 탐지 우회
+GitHub Actions 버전 - Selenium + Stealth 설정
 """
 
 import os
@@ -12,16 +12,18 @@ import requests
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-# 한국 시간대 (KST = UTC+9)
-KST = timezone(timedelta(hours=9))
-
-import undetected_chromedriver as uc
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 from sheets_manager import GoogleSheetsManager
+
+# 한국 시간대 (KST = UTC+9)
+KST = timezone(timedelta(hours=9))
 
 
 # ============================================================
@@ -71,16 +73,16 @@ def setup_logging():
 
 
 # ============================================================
-# 브라우저 설정 (undetected-chromedriver)
+# 브라우저 설정 (Selenium + Stealth 설정)
 # ============================================================
 def create_browser(logger):
-    """undetected-chromedriver로 브라우저 생성"""
+    """Selenium 브라우저 생성 (봇 탐지 우회 설정)"""
     
-    logger.info("🚀 undetected-chromedriver 브라우저 시작 중...")
+    logger.info("🚀 브라우저 시작 중...")
     
-    options = uc.ChromeOptions()
+    options = Options()
     
-    # 헤드리스 모드 (GitHub Actions용)
+    # 헤드리스 모드
     options.add_argument('--headless=new')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
@@ -89,32 +91,57 @@ def create_browser(logger):
     # 창 크기
     options.add_argument('--window-size=1920,1080')
     
-    # 언어 설정
-    options.add_argument('--lang=ko-KR')
-    
-    # 추가 우회 설정
+    # 봇 탐지 우회 설정
     options.add_argument('--disable-blink-features=AutomationControlled')
-    options.add_argument('--disable-infobars')
-    options.add_argument('--disable-extensions')
+    options.add_experimental_option('excludeSwitches', ['enable-automation'])
+    options.add_experimental_option('useAutomationExtension', False)
     
-    # User-Agent (실제 Chrome과 동일하게)
+    # User-Agent (실제 Chrome과 동일)
     options.add_argument(
         'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
         'AppleWebKit/537.36 (KHTML, like Gecko) '
-        'Chrome/121.0.0.0 Safari/537.36'
+        'Chrome/130.0.0.0 Safari/537.36'
     )
     
+    # 언어 설정
+    options.add_argument('--lang=ko-KR')
+    options.add_experimental_option('prefs', {
+        'intl.accept_languages': 'ko-KR,ko,en-US,en',
+        'credentials_enable_service': False,
+        'profile.password_manager_enabled': False
+    })
+    
+    # 추가 우회 설정
+    options.add_argument('--disable-infobars')
+    options.add_argument('--disable-extensions')
+    options.add_argument('--disable-popup-blocking')
+    options.add_argument('--ignore-certificate-errors')
+    
     try:
-        # undetected-chromedriver 생성
-        driver = uc.Chrome(
-            options=options,
-            use_subprocess=True,
-            version_main=None  # 자동으로 Chrome 버전 감지
-        )
+        # ChromeDriver 경로 (GitHub Actions에서 자동 설정됨)
+        driver = webdriver.Chrome(options=options)
+        
+        # JavaScript로 webdriver 속성 숨기기
+        driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
+            'source': '''
+                Object.defineProperty(navigator, 'webdriver', {
+                    get: () => undefined
+                });
+                Object.defineProperty(navigator, 'plugins', {
+                    get: () => [1, 2, 3, 4, 5]
+                });
+                Object.defineProperty(navigator, 'languages', {
+                    get: () => ['ko-KR', 'ko', 'en-US', 'en']
+                });
+                window.chrome = {
+                    runtime: {}
+                };
+            '''
+        })
         
         driver.set_page_load_timeout(Config.PAGE_LOAD_TIMEOUT)
         
-        logger.info("✅ 브라우저 시작 완료 (undetected-chromedriver)")
+        logger.info("✅ 브라우저 시작 완료")
         return driver
         
     except Exception as e:
@@ -167,9 +194,9 @@ class BaeminMonitor:
         try:
             self.driver.get(Config.TARGET_URL)
             
-            # Cloudflare 체크 대기 (최대 10초)
-            self.logger.info("⏳ Cloudflare 체크 대기 중...")
-            time.sleep(8)
+            # Cloudflare 체크 대기
+            self.logger.info("⏳ 페이지 로딩 대기 중...")
+            time.sleep(10)
             
             # 페이지 로드 대기
             WebDriverWait(self.driver, Config.ELEMENT_WAIT_TIMEOUT).until(
@@ -186,7 +213,7 @@ class BaeminMonitor:
             self.logger.info(f"📋 페이지 제목: {page_title}")
             
             # 차단 여부 확인
-            blocked_keywords = ['보안', '차단', 'blocked', 'access denied', '접근 제한', 'cloudflare']
+            blocked_keywords = ['보안', '차단', 'blocked', 'access denied', '접근 제한']
             is_blocked = any(kw in page_source for kw in blocked_keywords)
             
             if is_blocked and '외식업' not in page_source:
@@ -245,7 +272,6 @@ class BaeminMonitor:
                     try:
                         text = elem.text.strip() if elem.text else ''
                         
-                        # 빈 텍스트나 너무 짧은 것은 스킵
                         if len(text) < 2:
                             continue
                         
@@ -286,7 +312,7 @@ class BaeminMonitor:
             checked_urls = set()
             broken_links = []
             
-            for link in links[:30]:  # 최대 30개
+            for link in links[:30]:
                 try:
                     url = link.get_attribute('href')
                     
@@ -317,7 +343,6 @@ class BaeminMonitor:
                             self.logger.warning(f"⚠️ 깨진 링크: {url} ({response.status_code})")
                             
                     except requests.RequestException as e:
-                        # 타임아웃은 깨진 링크로 취급하지 않음
                         pass
                         
                 except Exception as e:
@@ -364,7 +389,6 @@ class BaeminMonitor:
                 self.get_page_info()
                 self.take_screenshot()
                 
-                # 접근 성공한 경우에만 슬롯 추출
                 if self.results['access_status'] == 'success':
                     self.extract_slots()
                     self.check_links()
@@ -436,7 +460,7 @@ def print_summary(results, logger):
     logger.info("\n" + "=" * 60)
     logger.info("📊 모니터링 결과 요약")
     logger.info("=" * 60)
-    logger.info(f"📅 날짜: {results['date']} {results['time']}")
+    logger.info(f"📅 날짜: {results['date']} {results['time']} (KST)")
     logger.info(f"🌐 URL: {results['url']}")
     logger.info(f"🔓 접근: {results.get('access_status', 'unknown')}")
     logger.info(f"📋 상태: {results['status']}")
@@ -462,7 +486,7 @@ def main():
     logger = setup_logging()
     
     now_kst = datetime.now(KST)
-    logger.info("🎯 배민외식업광장 모니터링 시작 (undetected-chromedriver)")
+    logger.info("🎯 배민외식업광장 모니터링 시작")
     logger.info(f"📅 실행 시간 (KST): {now_kst.strftime('%Y-%m-%d %H:%M:%S')}")
     logger.info(f"🌐 대상 URL: {Config.TARGET_URL}")
     
