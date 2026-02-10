@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 배민외식업광장 슬롯 모니터링 시스템
-GitHub Actions 버전 - Selenium + Stealth 설정
+GitHub Actions 버전 - webdriver-manager로 자동 버전 매칭
 """
 
 import os
@@ -19,6 +19,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from webdriver_manager.chrome import ChromeDriverManager
 
 from sheets_manager import GoogleSheetsManager
 
@@ -73,10 +74,10 @@ def setup_logging():
 
 
 # ============================================================
-# 브라우저 설정 (Selenium + Stealth 설정)
+# 브라우저 설정 (webdriver-manager 사용)
 # ============================================================
 def create_browser(logger):
-    """Selenium 브라우저 생성 (봇 탐지 우회 설정)"""
+    """Selenium 브라우저 생성 (webdriver-manager로 자동 버전 매칭)"""
     
     logger.info("🚀 브라우저 시작 중...")
     
@@ -96,11 +97,11 @@ def create_browser(logger):
     options.add_experimental_option('excludeSwitches', ['enable-automation'])
     options.add_experimental_option('useAutomationExtension', False)
     
-    # User-Agent (실제 Chrome과 동일)
+    # User-Agent
     options.add_argument(
         'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
         'AppleWebKit/537.36 (KHTML, like Gecko) '
-        'Chrome/130.0.0.0 Safari/537.36'
+        'Chrome/144.0.0.0 Safari/537.36'
     )
     
     # 언어 설정
@@ -111,15 +112,17 @@ def create_browser(logger):
         'profile.password_manager_enabled': False
     })
     
-    # 추가 우회 설정
+    # 추가 설정
     options.add_argument('--disable-infobars')
     options.add_argument('--disable-extensions')
     options.add_argument('--disable-popup-blocking')
     options.add_argument('--ignore-certificate-errors')
     
     try:
-        # ChromeDriver 경로 (GitHub Actions에서 자동 설정됨)
-        driver = webdriver.Chrome(options=options)
+        # webdriver-manager로 자동으로 맞는 ChromeDriver 설치
+        logger.info("📦 ChromeDriver 자동 설치 중...")
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=options)
         
         # JavaScript로 webdriver 속성 숨기기
         driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
@@ -194,7 +197,7 @@ class BaeminMonitor:
         try:
             self.driver.get(Config.TARGET_URL)
             
-            # Cloudflare 체크 대기
+            # 페이지 로딩 대기
             self.logger.info("⏳ 페이지 로딩 대기 중...")
             time.sleep(10)
             
@@ -203,7 +206,6 @@ class BaeminMonitor:
                 EC.presence_of_element_located((By.TAG_NAME, 'body'))
             )
             
-            # 추가 대기
             time.sleep(3)
             
             # 접근 상태 확인
@@ -223,7 +225,6 @@ class BaeminMonitor:
                 self.logger.info("✅ 페이지 접근 성공!")
                 self.results['access_status'] = 'success'
             
-            # 스크롤 다운
             self._scroll_page()
             
             self.logger.info("✅ 페이지 로드 완료")
@@ -342,7 +343,7 @@ class BaeminMonitor:
                             })
                             self.logger.warning(f"⚠️ 깨진 링크: {url} ({response.status_code})")
                             
-                    except requests.RequestException as e:
+                    except requests.RequestException:
                         pass
                         
                 except Exception as e:
