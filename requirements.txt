@@ -3,6 +3,9 @@
 # Selenium
 selenium>=4.15.0
 
+# ChromeDriver 자동 관리 (버전 자동 매칭)
+webdriver-manager>=4.0.1
+
 # Google Sheets API
 google-api-python-client>=2.100.0
 google-auth>=2.23.0
