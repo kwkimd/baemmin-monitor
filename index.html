@@ -35,6 +35,14 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         }
         
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
         .header h1 {
             font-size: 28px;
             color: #333;
@@ -68,6 +76,115 @@
             color: #721c24;
         }
         
+        /* 버전 선택 */
+        .version-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+        
+        .version-selector label {
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+        }
+        
+        .version-selector select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            min-width: 200px;
+        }
+        
+        .version-selector select:hover {
+            border-color: #667eea;
+        }
+        
+        /* 확인 필요 섹션 */
+        .need-check-section {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .need-check-header {
+            margin-bottom: 15px;
+        }
+        
+        .need-check-header h3 {
+            color: #c53030;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background: #c53030;
+            color: white;
+            border-radius: 50%;
+            font-size: 11px;
+            cursor: help;
+            position: relative;
+        }
+        
+        .tooltip-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: 25px;
+            left: 0;
+            background: #333;
+            color: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: pre-line;
+            min-width: 280px;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            line-height: 1.6;
+        }
+        
+        .need-check-table-wrapper {
+            overflow-x: auto;
+        }
+        
+        .need-check-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .need-check-table th,
+        .need-check-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #fed7d7;
+        }
+        
+        .need-check-table th {
+            background: #feb2b2;
+            color: #742a2a;
+            font-weight: 500;
+        }
+        
+        .need-check-table tr:hover {
+            background: #fff0f0;
+        }
+        
         /* 통계 카드 */
         .stats {
             display: grid;
@@ -94,6 +211,10 @@
             font-size: 14px;
             color: #666;
             margin-top: 5px;
+        }
+        
+        .stat-card.warning .number {
+            color: #e53e3e;
         }
         
         /* 영역 카드 */
@@ -185,6 +306,13 @@
             color: #721c24;
         }
         
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        
         /* 푸터 */
         .footer {
             text-align: center;
@@ -214,12 +342,24 @@
                 font-size: 22px;
             }
             
+            .header-top {
+                flex-direction: column;
+            }
+            
             .areas {
                 grid-template-columns: 1fr;
             }
             
             .stat-card .number {
                 font-size: 28px;
+            }
+            
+            .version-selector {
+                width: 100%;
+            }
+            
+            .version-selector select {
+                flex: 1;
             }
         }
     </style>
@@ -228,12 +368,79 @@
     <div class="container">
         <!-- 헤더 -->
         <div class="header">
-            <h1>🍽️ 배민외식업광장 모니터링 대시보드</h1>
-            <p class="update-time">📅 마지막 업데이트: 2026-02-12 10:02:27 (KST)</p>
-            <span class="status-badge status-success">
-                ✅ 정상 수집 완료
-            </span>
+            <div class="header-top">
+                <div>
+                    <h1>🍽️ 배민외식업광장 모니터링 대시보드</h1>
+                    <p class="update-time">📅 마지막 업데이트: 2026-02-12 10:29:24 (KST)</p>
+                    <span class="status-badge status-success">
+                        ✅ 정상 수집 완료
+                    </span>
+                </div>
+                
+    <div class="version-selector">
+        <label for="version-select">📂 버전 선택:</label>
+        <select id="version-select" onchange="changeVersion(this.value)">
+            <option value="2026-02-12_10-29-24" selected>2026:02:12 10:29:24</option>
+        </select>
+    </div>
+    
+            </div>
         </div>
+        
+        <!-- 확인 필요 항목 -->
+        
+        <div class="need-check-section">
+            <div class="need-check-header">
+                <h3>⚠️ 확인 필요 항목 (5개)
+                    <span class="tooltip-icon" data-tooltip="확인 필요 기준:&#10;• 링크없음: 링크가 비어있거나 javascript:, # 으로 시작&#10;• 탭메뉴: 클릭 가능한 탭 버튼 (링크 아님)&#10;• 확인불가: 링크 접속 시 타임아웃 또는 오류&#10;• 오류(4xx/5xx): HTTP 상태 코드 오류">ⓘ</span>
+                </h3>
+            </div>
+            <div class="need-check-table-wrapper">
+                <table class="need-check-table">
+                    <thead>
+                        <tr>
+                            <th>영역</th>
+                            <th>제목</th>
+                            <th>상태</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+            <tr>
+                <td>파트너비즈니스팁</td>
+                <td>[탭] 가게 운영 TIP...</td>
+                <td><span class="status-badge status-warn">탭메뉴</span></td>
+            </tr>
+            
+            <tr>
+                <td>파트너비즈니스팁</td>
+                <td>[탭] 2026 외식업트렌드...</td>
+                <td><span class="status-badge status-warn">탭메뉴</span></td>
+            </tr>
+            
+            <tr>
+                <td>파트너비즈니스팁</td>
+                <td>[탭] 겨울 시즌 주문취소 관리...</td>
+                <td><span class="status-badge status-warn">탭메뉴</span></td>
+            </tr>
+            
+            <tr>
+                <td>파트너비즈니스팁</td>
+                <td>[탭] 영상교육...</td>
+                <td><span class="status-badge status-warn">탭메뉴</span></td>
+            </tr>
+            
+            <tr>
+                <td>파트너비즈니스팁</td>
+                <td>[탭] 마감 임박 교육...</td>
+                <td><span class="status-badge status-warn">탭메뉴</span></td>
+            </tr>
+            
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
         
         <!-- 통계 -->
         <div class="stats">
@@ -249,7 +456,7 @@
                 <div class="number">34</div>
                 <div class="label">정상 링크</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card warning">
                 <div class="number">5</div>
                 <div class="label">확인 필요</div>
             </div>
@@ -426,7 +633,7 @@
                     </div>
                     
                     <div class="item">
-                        <a href="https://academy.baemin.com/edu/detail/2060/?utm_source=ceopage&utm_medium=mainslot&utm_campaign=edu_daily" target="_blank" class="item-title">신청 마감 D-7</a>
+                        <a href="https://academy.baemin.com/edu/detail/2058/?utm_source=ceopage&utm_medium=mainslot&utm_campaign=edu_daily" target="_blank" class="item-title">신청 마감 D-6</a>
                         <span class="item-status status-ok">✅ 정상</span>
                     </div>
                     
@@ -436,7 +643,7 @@
                     </div>
                     
                     <div class="item">
-                        <a href="https://academy.baemin.com/edu/detail/2058/?utm_source=ceopage&utm_medium=mainslot&utm_campaign=edu_daily" target="_blank" class="item-title">신청 마감 D-6</a>
+                        <a href="https://academy.baemin.com/edu/detail/2060/?utm_source=ceopage&utm_medium=mainslot&utm_campaign=edu_daily" target="_blank" class="item-title">신청 마감 D-7</a>
                         <span class="item-status status-ok">✅ 정상</span>
                     </div>
                     
@@ -541,5 +748,13 @@
             <p>Powered by Python + Selenium + GitHub Pages</p>
         </div>
     </div>
+    
+    <script>
+        function changeVersion(version) {
+            if (version) {
+                window.location.href = 'versions/' + version + '.html';
+            }
+        }
+    </script>
 </body>
 </html>
