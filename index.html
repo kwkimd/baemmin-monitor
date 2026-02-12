@@ -106,6 +106,71 @@
             border-color: #667eea;
         }
         
+        /* 🚨 알림 섹션 */
+        .alert-section {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 5px 20px rgba(238, 90, 90, 0.3);
+        }
+        
+        .alert-header h3 {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .alert-table-wrapper {
+            overflow-x: auto;
+        }
+        
+        .alert-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .alert-table th,
+        .alert-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .alert-table th {
+            background: rgba(0,0,0,0.1);
+            font-weight: 600;
+        }
+        
+        .alert-table tr:hover {
+            background: rgba(0,0,0,0.1);
+        }
+        
+        .alert-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .alert-critical {
+            background: #fff;
+            color: #c53030;
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .alert-error {
+            background: #fecaca;
+            color: #991b1b;
+        }
+        
         /* 확인 필요 섹션 */
         .need-check-section {
             background: #fff5f5;
@@ -371,7 +436,7 @@
             <div class="header-top">
                 <div>
                     <h1>🍽️ 배민외식업광장 모니터링 대시보드</h1>
-                    <p class="update-time">📅 마지막 업데이트: 2026-02-12 11:39:10 (KST)</p>
+                    <p class="update-time">📅 마지막 업데이트: 2026-02-12 11:50:42 (KST)</p>
                     <span class="status-badge status-success">
                         ✅ 정상 수집 완료
                     </span>
@@ -380,12 +445,43 @@
     <div class="version-selector">
         <label for="version-select">📂 버전 선택:</label>
         <select id="version-select" onchange="changeVersion(this.value)">
-            <option value="2026-02-12_11-39-10" selected>2026:02:12 11:39:10</option><option value="2026-02-12_10-56-49" >2026:02:12 10:56:49</option><option value="2026-02-12_10-29-24" >2026:02:12 10:29:24</option>
+            <option value="2026-02-12_11-50-42" selected>2026:02:12 11:50:42</option><option value="2026-02-12_11-39-10" >2026:02:12 11:39:10</option><option value="2026-02-12_10-56-49" >2026:02:12 10:56:49</option><option value="2026-02-12_10-29-24" >2026:02:12 10:29:24</option>
         </select>
     </div>
     
             </div>
         </div>
+        
+        <!-- 🚨 영역 노출 알림 -->
+        
+        <div class="alert-section">
+            <div class="alert-header">
+                <h3>🚨 영역 노출 알림 (1개)</h3>
+            </div>
+            <div class="alert-table-wrapper">
+                <table class="alert-table">
+                    <thead>
+                        <tr>
+                            <th>상태</th>
+                            <th>영역</th>
+                            <th>기대</th>
+                            <th>실제</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+            <tr>
+                <td><span class="alert-badge alert-warning">부족</span></td>
+                <td><strong>메인배너</strong></td>
+                <td>기대: 7개</td>
+                <td>실제: 6개</td>
+            </tr>
+            
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
         
         <!-- 확인 필요 항목 -->
         
@@ -393,15 +489,15 @@
         <!-- 통계 -->
         <div class="stats">
             <div class="stat-card">
-                <div class="number">39</div>
+                <div class="number">42</div>
                 <div class="label">총 수집 항목</div>
             </div>
             <div class="stat-card">
-                <div class="number">8</div>
+                <div class="number">9</div>
                 <div class="label">모니터링 영역</div>
             </div>
             <div class="stat-card">
-                <div class="number">39</div>
+                <div class="number">42</div>
                 <div class="label">정상 링크</div>
             </div>
             <div class="stat-card ">
@@ -472,6 +568,21 @@
                     
                     <div class="item">
                         <a href="https://ceo.baemin.com/knowhow/14347" target="_blank" class="item-title">지원 2월 둘째 주 주요 일정, 놓치지 마세요 (9일~15일) 3일 전</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>서비스강조배너</h3>
+                    <span class="count-badge">1개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <a href="https://mart.baemin.com/campaign/landing/zXXqYfyHCGEmzOuD" target="_blank" class="item-title">편하고 빠른 배민상회 내일도착!</a>
                         <span class="item-status status-ok">✅ 정상</span>
                     </div>
                     
@@ -581,17 +692,17 @@
                     </div>
                     
                     <div class="item">
+                        <a href="https://academy.baemin.com/edu/detail/2060/?utm_source=ceopage&utm_medium=mainslot&utm_campaign=edu_daily" target="_blank" class="item-title">신청 마감 D-7</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
                         <a href="https://academy.baemin.com/edu/detail/2058/?utm_source=ceopage&utm_medium=mainslot&utm_campaign=edu_daily" target="_blank" class="item-title">신청 마감 D-6</a>
                         <span class="item-status status-ok">✅ 정상</span>
                     </div>
                     
                     <div class="item">
                         <a href="https://academy.baemin.com/edu/detail/2032/?utm_source=ceopage&utm_medium=mainslot&utm_campaign=edu_daily" target="_blank" class="item-title">신청 마감 D-7</a>
-                        <span class="item-status status-ok">✅ 정상</span>
-                    </div>
-                    
-                    <div class="item">
-                        <a href="https://academy.baemin.com/edu/detail/2060/?utm_source=ceopage&utm_medium=mainslot&utm_campaign=edu_daily" target="_blank" class="item-title">신청 마감 D-7</a>
                         <span class="item-status status-ok">✅ 정상</span>
                     </div>
                     
@@ -676,12 +787,22 @@
             <div class="area-card">
                 <div class="area-header">
                     <h3>마이영역배너</h3>
-                    <span class="count-badge">1개</span>
+                    <span class="count-badge">3개</span>
                 </div>
                 <div class="area-items">
                     
                     <div class="item">
                         <a href="https://ceo.baemin.com/franchise/brand-detail/350" target="_blank" class="item-title">동일 노동, 높은 마진율! - 가성비, 중저가 치킨 프랜차이즈</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://mart.baemin.com/campaign/landing/vYnpMfoesCVeHXhR" target="_blank" class="item-title">장사에 필요한 식재료 & 비품 - 오늘 주문하면 내일도착</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/affiliates/14332?utm_source=ceo&utm_medium=alarm&utm_campaign=autodc&utm_content=260207_my_banner_autodc" target="_blank" class="item-title">2.9-2.15 메가위크 기간 - 우리 가게 노출을 강화해보세요!</a>
                         <span class="item-status status-ok">✅ 정상</span>
                     </div>
                     
