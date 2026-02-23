@@ -12,16 +12,18 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      - name: Env Diagnostic
-        shell: 'C:\Windows\System32\cmd.exe /D /E:ON /V:OFF /S /C "{0}"'
-        run: echo RUNNER_OK > C:\baemin_runner\runner_test.txt && echo PATH=%PATH% >> C:\baemin_runner\runner_test.txt
-
       - name: Step 1 - 모니터링 크롤링
-        shell: 'C:\Windows\System32\cmd.exe /D /E:ON /V:OFF /S /C "{0}"'
-        run: C:\baemin_runner\step1.bat
+        shell: powershell
+        run: |
+          Set-Location "C:\배민모니터링"
+          & "C:\Users\woowahan\AppData\Local\Python\bin\python.exe" main.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Step 2 - AI 분석 및 HTML 생성 (GitHub Pages 업로드 포함)
-        shell: 'C:\Windows\System32\cmd.exe /D /E:ON /V:OFF /S /C "{0}"'
+        shell: powershell
         env:
           ENABLE_AI: "true"
-        run: C:\baemin_runner\step2.bat
+        run: |
+          Set-Location "C:\배민모니터링"
+          & "C:\Users\woowahan\AppData\Local\Python\bin\python.exe" run_with_ai.py
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
