@@ -1,29 +1,25 @@
-name: 배민외식업광장 모니터링
+﻿name: baemin-monitoring
 
 on:
   schedule:
-    - cron: '0 1 * * 1-5'   # 평일 오전 10시 KST (UTC 01:00)
-    - cron: '0 4 * * 1-5'   # 평일 오후 1시 KST (UTC 04:00)
-  workflow_dispatch:          # 수동 실행 버튼
+    - cron: '0 1 * * 1-5'
+    - cron: '0 4 * * 1-5'
+  workflow_dispatch:
 
 jobs:
   monitor:
-    runs-on: self-hosted      # 로컬 Windows PC 실행 (봇 차단 우회)
+    runs-on: self-hosted
     timeout-minutes: 20
 
     steps:
-      - name: Step 1 - 모니터링 크롤링
+      - name: Step 1 - Crawling
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -ExecutionPolicy Unrestricted -File "{0}"'
         run: |
-          Set-Location "C:\배민모니터링"
-          & "C:\Users\woowahan\AppData\Local\Python\bin\python.exe" main.py
+          & "C:\actions-runner\step1.ps1"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-      - name: Step 2 - AI 분석 및 HTML 생성 (GitHub Pages 업로드 포함)
+      - name: Step 2 - AI Analysis and HTML Upload
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -ExecutionPolicy Unrestricted -File "{0}"'
-        env:
-          ENABLE_AI: "true"
         run: |
-          Set-Location "C:\배민모니터링"
-          & "C:\Users\woowahan\AppData\Local\Python\bin\python.exe" run_with_ai.py
+          & "C:\actions-runner\step2.ps1"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
