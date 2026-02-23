@@ -1,0 +1,17 @@
+# 민감 정보 - 절대 레포에 올리면 안 됨
+credentials.json
+config.json
+
+# 로컬 실행 결과 (대용량 또는 민감)
+screenshots/
+logs/
+ai_suggestions/
+copywriting_reports/
+
+# Python 캐시
+__pycache__/
+*.pyc
+*.pyo
+
+# 기타
+*.log
