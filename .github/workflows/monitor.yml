@@ -2,68 +2,25 @@ name: 배민외식업광장 모니터링
 
 on:
   schedule:
-    # KST 기준: 오전 10시 (UTC 01:00), 오후 1시 (UTC 04:00)
-    - cron: '0 1 * * 1-5'   # 평일 오전 10시 KST
-    - cron: '0 4 * * 1-5'   # 평일 오후 1시 KST
-  workflow_dispatch:          # GitHub 웹에서 수동 실행 버튼
+    - cron: '0 1 * * 1-5'   # 평일 오전 10시 KST (UTC 01:00)
+    - cron: '0 4 * * 1-5'   # 평일 오후 1시 KST (UTC 04:00)
+  workflow_dispatch:          # 수동 실행 버튼
 
 jobs:
   monitor:
-    runs-on: self-hosted      # 로컬 Windows PC에서 실행 (봇 차단 우회)
+    runs-on: self-hosted      # 로컬 Windows PC 실행 (봇 차단 우회)
     timeout-minutes: 20
+    defaults:
+      run:
+        shell: cmd
+        working-directory: C:\배민모니터링
 
     steps:
-      - name: 코드 체크아웃
-        uses: actions/checkout@v4
-
-      # credentials.json 복원 (GitHub Secret: GOOGLE_CREDENTIALS_JSON)
-      - name: Google 인증 파일 복원
-        shell: pwsh
-        env:
-          GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
-        run: |
-          $content = [System.Text.Encoding]::UTF8.GetString(
-            [System.Convert]::FromBase64String($env:GOOGLE_CREDENTIALS_JSON)
-          )
-          $content | Out-File -FilePath "credentials.json" -Encoding utf8NoBOM
-
-      # config.json 복원 (GitHub Secret: CONFIG_JSON)
-      - name: 설정 파일 복원
-        shell: pwsh
-        env:
-          CONFIG_JSON: ${{ secrets.CONFIG_JSON }}
-        run: |
-          $content = [System.Text.Encoding]::UTF8.GetString(
-            [System.Convert]::FromBase64String($env:CONFIG_JSON)
-          )
-          $content | Out-File -FilePath "config.json" -Encoding utf8NoBOM
-
-      # Step 1: 크롤링
+      # checkout 불필요: 코드가 이미 C:\배민모니터링에 존재
       - name: Step 1 - 모니터링 크롤링
-        shell: pwsh
         run: py main.py
 
-      # Step 2: AI 분석 + HTML 생성 + GitHub Pages 업로드
-      - name: Step 2 - AI 분석 및 HTML 생성
-        shell: pwsh
+      - name: Step 2 - AI 분석 및 HTML 생성 (GitHub Pages 업로드 포함)
         env:
           ENABLE_AI: "true"
         run: py run_with_ai.py
-
-      # 결과 파일을 레포에 커밋 & 푸시 (버전 기록용)
-      - name: 결과 커밋 & 푸시
-        shell: pwsh
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add report.html logs/ ai_suggestions/ screenshots/ -f 2>$null
-          $diff = git diff --staged --name-only
-          if ($diff) {
-            $kst = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId(
-              [datetime]::UtcNow, "Korea Standard Time"
-            ).ToString("yyyy-MM-dd HH:mm")
-            git commit -m "chore: 자동 모니터링 업데이트 $kst KST"
-            git push
-          } else {
-            Write-Host "변경사항 없음 - 커밋 스킵"
-          }
