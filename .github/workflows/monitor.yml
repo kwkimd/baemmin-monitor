@@ -10,17 +10,15 @@ jobs:
   monitor:
     runs-on: self-hosted      # 로컬 Windows PC 실행 (봇 차단 우회)
     timeout-minutes: 20
-    defaults:
-      run:
-        shell: cmd
-        working-directory: C:\배민모니터링
 
     steps:
       # checkout 불필요: 코드가 이미 C:\배민모니터링에 존재
       - name: Step 1 - 모니터링 크롤링
-        run: py main.py
+        shell: 'C:\Windows\System32\cmd.exe /D /E:ON /V:OFF /S /C "{0}"'
+        run: C:\baemin_runner\step1.bat
 
       - name: Step 2 - AI 분석 및 HTML 생성 (GitHub Pages 업로드 포함)
+        shell: 'C:\Windows\System32\cmd.exe /D /E:ON /V:OFF /S /C "{0}"'
         env:
           ENABLE_AI: "true"
-        run: py run_with_ai.py
+        run: C:\baemin_runner\step2.bat
