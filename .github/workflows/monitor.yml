@@ -13,13 +13,13 @@ jobs:
 
     steps:
       - name: Step 1 - Crawling
-        shell: powershell
+        shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -ExecutionPolicy Unrestricted -Command "& ([scriptblock]::Create([IO.File]::ReadAllText(''{0}'')))"'
         run: |
           & "C:\actions-runner\step1.ps1"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Step 2 - AI Analysis and HTML Upload
-        shell: powershell
+        shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -ExecutionPolicy Unrestricted -Command "& ([scriptblock]::Create([IO.File]::ReadAllText(''{0}'')))"'
         run: |
           & "C:\actions-runner\step2.ps1"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
