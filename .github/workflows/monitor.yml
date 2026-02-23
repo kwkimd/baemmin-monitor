@@ -1,4 +1,4 @@
-﻿name: baemin-monitoring
+name: baemin-monitoring
 
 on:
   schedule:
