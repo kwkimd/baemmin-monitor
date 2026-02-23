@@ -12,7 +12,10 @@ jobs:
     timeout-minutes: 20
 
     steps:
-      # checkout 불필요: 코드가 이미 C:\배민모니터링에 존재
+      - name: Env Diagnostic
+        shell: 'C:\Windows\System32\cmd.exe /D /E:ON /V:OFF /S /C "{0}"'
+        run: echo RUNNER_OK > C:\baemin_runner\runner_test.txt && echo PATH=%PATH% >> C:\baemin_runner\runner_test.txt
+
       - name: Step 1 - 모니터링 크롤링
         shell: 'C:\Windows\System32\cmd.exe /D /E:ON /V:OFF /S /C "{0}"'
         run: C:\baemin_runner\step1.bat
