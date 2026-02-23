@@ -765,19 +765,34 @@ class BaeminMonitor:
         if not url or url.startswith('javascript:') or url.startswith('#'):
             return '링크없음'
         
+        req_headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+        
         try:
             response = requests.head(
-                url,
-                timeout=5,
-                allow_redirects=True,
-                headers={'User-Agent': 'Mozilla/5.0'}
+                url, timeout=7, allow_redirects=True,
+                headers=req_headers, verify=True
             )
-            
             if response.status_code < 400:
                 return '정상'
             else:
                 return f'오류({response.status_code})'
-                
+        except requests.exceptions.SSLError:
+            # SSL 인증서 문제(자체서명 등) - verify=False로 재시도
+            try:
+                import urllib3
+                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+                response = requests.head(
+                    url, timeout=7, allow_redirects=True,
+                    headers=req_headers, verify=False
+                )
+                if response.status_code < 400:
+                    return '정상'
+                else:
+                    return f'오류({response.status_code})'
+            except:
+                return '확인불가'
         except:
             return '확인불가'
     
