@@ -13,14 +13,14 @@ jobs:
 
     steps:
       - name: Step 1 - 모니터링 크롤링
-        shell: powershell
+        shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -ExecutionPolicy Unrestricted -File "{0}"'
         run: |
           Set-Location "C:\배민모니터링"
           & "C:\Users\woowahan\AppData\Local\Python\bin\python.exe" main.py
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Step 2 - AI 분석 및 HTML 생성 (GitHub Pages 업로드 포함)
-        shell: powershell
+        shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -ExecutionPolicy Unrestricted -File "{0}"'
         env:
           ENABLE_AI: "true"
         run: |
