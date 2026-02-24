@@ -1,0 +1,1845 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>배민외식업광장 모니터링 대시보드</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* 헤더 */
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header .update-time {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .header .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* 버전 선택 */
+        .version-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+        
+        .version-selector label {
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+        }
+        
+        .version-selector select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            min-width: 200px;
+        }
+        
+        .version-selector select:hover {
+            border-color: #667eea;
+        }
+
+        .version-go-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s;
+            white-space: nowrap;
+        }
+
+        .version-go-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .screenshot-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+
+        .screenshot-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+        }
+
+        /* 스크린샷 모달 */
+        .screenshot-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .screenshot-modal.active {
+            display: flex;
+        }
+
+        .screenshot-modal-inner {
+            position: relative;
+            max-width: 92vw;
+            max-height: 90vh;
+            text-align: center;
+        }
+
+        .screenshot-close-btn {
+            position: absolute;
+            top: -44px;
+            right: 0;
+            background: white;
+            color: #333;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .screenshot-close-btn:hover {
+            background: #f0f0f0;
+        }
+
+        #screenshot-img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .screenshot-caption {
+            color: rgba(255, 255, 255, 0.85);
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        .screenshot-error {
+            color: #ff9999;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        /* 헤더 액션 버튼 영역 */
+        .header-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .run-monitoring-btn {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: #1a4a2e;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
+        }
+
+        .run-monitoring-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(67, 233, 123, 0.5);
+        }
+
+        .run-monitoring-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .run-monitoring-btn.running {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #7a3b1e;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .settings-btn {
+            background: rgba(255,255,255,0.2);
+            color: #555;
+            border: 2px solid #ddd;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            white-space: nowrap;
+        }
+
+        .settings-btn:hover {
+            background: rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+            transform: rotate(30deg);
+        }
+
+        /* 설정 모달 */
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9998;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-modal.active {
+            display: flex;
+        }
+
+        .settings-modal-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            width: 420px;
+            max-width: 92vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .settings-modal-box h3 {
+            font-size: 18px;
+            margin-bottom: 6px;
+            color: #333;
+        }
+
+        .settings-modal-box .settings-note {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .settings-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .settings-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: monospace;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .settings-input:focus {
+            border-color: #667eea;
+        }
+
+        .settings-btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+
+        .settings-save-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .settings-save-btn:hover {
+            background: #5567d0;
+        }
+
+        .settings-cancel-btn {
+            background: #f0f0f0;
+            color: #555;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .settings-cancel-btn:hover {
+            background: #e0e0e0;
+        }
+
+        /* 토스트 알림 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #333;
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            z-index: 10000;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+            opacity: 0;
+            max-width: 90vw;
+            text-align: center;
+            white-space: pre-line;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success { background: #2d7a4f; }
+        .toast.error { background: #c0392b; }
+        .toast.info { background: #2563eb; }
+
+        /* 🚨 알림 섹션 */
+        .alert-section {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 5px 20px rgba(238, 90, 90, 0.3);
+        }
+        
+        .alert-header h3 {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .alert-table-wrapper {
+            overflow-x: auto;
+        }
+        
+        .alert-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .alert-table th,
+        .alert-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .alert-table th {
+            background: rgba(0,0,0,0.1);
+            font-weight: 600;
+        }
+        
+        .alert-table tr:hover {
+            background: rgba(0,0,0,0.1);
+        }
+        
+        .alert-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .alert-critical {
+            background: #fff;
+            color: #c53030;
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .alert-error {
+            background: #fecaca;
+            color: #991b1b;
+        }
+        
+        /* 확인 필요 섹션 */
+        .need-check-section {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .need-check-header {
+            margin-bottom: 15px;
+        }
+        
+        .need-check-header h3 {
+            color: #c53030;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background: #c53030;
+            color: white;
+            border-radius: 50%;
+            font-size: 11px;
+            cursor: help;
+            position: relative;
+        }
+        
+        .tooltip-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: 25px;
+            left: 0;
+            background: #333;
+            color: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: pre-line;
+            min-width: 280px;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            line-height: 1.6;
+        }
+        
+        .need-check-table-wrapper {
+            overflow-x: auto;
+        }
+        
+        .need-check-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .need-check-table th,
+        .need-check-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #fed7d7;
+        }
+        
+        .need-check-table th {
+            background: #feb2b2;
+            color: #742a2a;
+            font-weight: 500;
+        }
+        
+        .need-check-table tr:hover {
+            background: #fff0f0;
+        }
+        
+        /* 통계 카드 */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .stat-card .label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .stat-card.warning .number {
+            color: #e53e3e;
+        }
+        
+        /* 영역 카드 */
+        .areas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .area-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .area-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .area-header h3 {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .count-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+        
+        .area-items {
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .item-title {
+            flex: 1;
+            font-size: 13px;
+            color: #333;
+            text-decoration: none;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        
+        .item-title:hover {
+            color: #667eea;
+        }
+        
+        .item-status {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+        
+        /* AI 제안 스타일 */
+        .ai-suggestions-container {
+            margin-top: 8px;
+        }
+        
+        .ai-toggle-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+        
+        .ai-toggle-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .ai-content {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .ai-suggestion {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .ai-suggestion:last-child {
+            margin-bottom: 0;
+        }
+        
+        .ai-sug-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        
+        .ai-badge {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .ai-score {
+            background: #ffd700;
+            color: #333;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .ai-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        
+        .ai-reason {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        .status-ok {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-warn {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        
+        /* 푸터 */
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            padding: 30px;
+            font-size: 13px;
+        }
+        
+        /* 스크롤바 */
+        .area-items::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .area-items::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .area-items::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .header-top {
+                flex-direction: column;
+            }
+            
+            .areas {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-card .number {
+                font-size: 28px;
+            }
+            
+            .version-selector {
+                width: 100%;
+            }
+            
+            .version-selector select {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <div class="header">
+            <div class="header-top">
+                <div>
+                    <h1>🍽️ 배민외식업광장 모니터링 대시보드</h1>
+                    <p class="update-time">📅 마지막 업데이트: 2026-02-24 14:46:41 (KST)</p>
+                    <span class="status-badge status-success">
+                        ✅ 정상 수집 완료
+                    </span>
+                </div>
+                <div class="header-actions">
+                    
+    <div class="version-selector">
+        <label for="version-select">📂 버전 선택:</label>
+        <select id="version-select">
+            <option value="2026-02-24_14-46-41" selected>2026:02:24 14:46:41</option><option value="2026-02-24_14-38-26" >2026:02:24 14:38:26</option><option value="2026-02-24_14-12-15" >2026:02:24 14:12:15</option><option value="2026-02-24_11-28-49" >2026:02:24 11:28:49</option><option value="2026-02-24_11-17-11" >2026:02:24 11:17:11</option><option value="2026-02-24_10-43-18" >2026:02:24 10:43:18</option><option value="2026-02-24_09-52-22" >2026:02:24 09:52:22</option><option value="2026-02-23_20-10-30" >2026:02:23 20:10:30</option><option value="2026-02-23_19-40-42" >2026:02:23 19:40:42</option><option value="2026-02-23_19-28-50" >2026:02:23 19:28:50</option><option value="2026-02-23_19-28-24" >2026:02:23 19:28:24</option><option value="2026-02-23_19-27-55" >2026:02:23 19:27:55</option><option value="2026-02-23_16-13-19" >2026:02:23 16:13:19</option><option value="2026-02-23_13-53-17" >2026:02:23 13:53:17</option><option value="2026-02-19_12-49-47" >2026:02:19 12:49:47</option><option value="2026-02-19_12-42-37" >2026:02:19 12:42:37</option><option value="2026-02-19_12-33-54" >2026:02:19 12:33:54</option><option value="2026-02-19_12-24-36" >2026:02:19 12:24:36</option><option value="2026-02-19_12-17-24" >2026:02:19 12:17:24</option><option value="2026-02-19_12-14-53" >2026:02:19 12:14:53</option><option value="2026-02-19_12-12-11" >2026:02:19 12:12:11</option><option value="2026-02-19_12-02-18" >2026:02:19 12:02:18</option><option value="2026-02-19_12-00-04" >2026:02:19 12:00:04</option><option value="2026-02-19_11-57-45" >2026:02:19 11:57:45</option><option value="2026-02-19_11-56-14" >2026:02:19 11:56:14</option><option value="2026-02-19_11-55-24" >2026:02:19 11:55:24</option><option value="2026-02-19_11-26-24" >2026:02:19 11:26:24</option><option value="2026-02-19_10-43-01" >2026:02:19 10:43:01</option><option value="2026-02-19_10-08-22" >2026:02:19 10:08:22</option><option value="2026-02-19_10-00-05" >2026:02:19 10:00:05</option>
+        </select>
+        <button class="version-go-btn" onclick="changeVersion(document.getElementById('version-select').value)">📂 이동</button>
+        <button class="screenshot-btn" onclick="showScreenshot(document.getElementById('version-select').value)">📸 스크린샷</button>
+    </div>
+    
+                    <div class="action-buttons">
+                        <button class="run-monitoring-btn" id="run-btn" onclick="triggerMonitoring()">🔄 모니터링 실행</button>
+                        <button class="settings-btn" onclick="openSettings()" title="GitHub 토큰 설정">⚙️</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 🚨 영역 노출 알림 -->
+        
+        
+        <!-- 확인 필요 항목 -->
+        
+        
+        <!-- 통계 -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number">41</div>
+                <div class="label">총 수집 항목</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">10</div>
+                <div class="label">모니터링 영역</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">41</div>
+                <div class="label">정상 링크</div>
+            </div>
+            <div class="stat-card ">
+                <div class="number">0</div>
+                <div class="label">확인 필요</div>
+            </div>
+        </div>
+        
+        <!-- 영역별 카드 -->
+        <div class="areas">
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>메인배너</h3>
+                    <span class="count-badge">7개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://mart.baemin.com/campaign/landing/fmiqoIYJBFBVsWzD" target="_blank" class="item-title">더 다양하고 풍성한 할인 혜택! - 배민상회 상회대축제 오픈 최대 87% 할인 + 10% 쿠폰 2장!</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.2</span>
+                                        </div>
+                                        <div class="ai-title">배민상회 대축제 오픈!
+최대 87% 할인 기회!
+10% 쿠폰 2장도 드려요!</div>
+                                        <div class="ai-reason">이벤트명과 최고 할인율을 메인 카피로 명확하게 전달하여 주목도를 높였습니다. 서브 카피에 추가 쿠폰 혜택을 명시하여 전체적인 혜택을 강조하면서도, 각 줄의 문자 수를 완벽히 준수했습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.3</span>
+                                        </div>
+                                        <div class="ai-title">87% 폭탄 할인 시작!
+배민상회 상회대축제
+10% 쿠폰 2장 지금 받으세요!</div>
+                                        <div class="ai-reason">가장 큰 할인율을 메인 카피 첫 줄에 배치하여 시각적으로 강렬한 인상을 줍니다. 이어 이벤트명을 명확히 하고, 서브 카피에서는 쿠폰 혜택과 함께 즉각적인 행동(지금 받으세요!)을 유도하는 강력한 문구를 사용했습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">상회대축제 역대급 할인
+최대 87% + 10% 쿠폰!
+사장님, 지금 바로 확인하세요!</div>
+                                        <div class="ai-reason">이벤트의 핵심(상회대축제)과 '역대급 할인'이라는 강력한 표현으로 기대감을 높였습니다. 메인 카피 두 번째 줄에 최대 할인율과 쿠폰 혜택을 한 번에 보여주어 정보 밀도를 높였으며, 서브 카피는 대상 고객(사장님)을 직접 호명하며 명확한 행동을 촉구합니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://mart.baemin.com/campaign/landing/GWxYDHanvQbWFoQG" target="_blank" class="item-title">배민상회 쌀 사는 날! - 엄선한 고품질 쌀 상품 특별한 가격으로 만나보세요!</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">{'main': ['사장님, 쌀 살 땐', '배민상회 특가!'], 'sub': '엄선한 고품질 쌀, 지금 바로 만나세요!'}</div>
+                                        <div class="ai-reason">사장님을 직접 호칭하여 개인화된 느낌을 주며, '쌀 살 땐'이라는 상황 인지로 메시지의 관련성을 높였습니다. 메인 카피에서 '배민상회 특가!'로 가격 혜택을 명확히 강조하여 주목도를 높였고, 서브 카피는 '엄선한 고품질'이라는 강점을 다시 한번 언급하며 간결한 행동 유도를 담았습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.2</span>
+                                        </div>
+                                        <div class="ai-title">{'main': ['고품질 쌀!', '배민상회에서 알뜰하게!'], 'sub': '사장님 위한 특별 할인, 놓치지 마세요!'}</div>
+                                        <div class="ai-reason">메인 카피를 '고품질 쌀!'로 시작하여 핵심 가치를 즉각적으로 전달하고, 이어 '배민상회에서 알뜰하게!'로 플랫폼과 가격 혜택을 연결했습니다. 서브 카피는 '사장님 위한 특별 할인'으로 대상의 니즈를 직접 건드리며, 강력한 행동 유발 메시지 '놓치지 마세요!'로 긴급성을 부여했습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-title">{'main': ['배민상회 쌀 사는 날!', '품질은 물론 가격까지!'], 'sub': '엄선된 쌀, 지금 바로 주문하세요!'}</div>
+                                        <div class="ai-reason">기존 원문의 친숙한 '배민상회 쌀 사는 날!'을 유지하여 인지도를 활용했습니다. 두 번째 메인 카피에서 '품질은 물론 가격까지!'로 고품질과 가격 혜택을 동시에 강조하여 사장님들이 중요하게 생각하는 두 가지 요소를 한 번에 어필했습니다. 서브 카피는 핵심 키워드인 '엄선된 쌀'을 다시 한번 강조하며 간결한 주문 유도를 담았습니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/franchise/brand-detail/350" target="_blank" class="item-title">업종변경 두 팔 벌려 대환영 - 똑같은 노동으로 나 혼자만 매출 UP 창업 지원 혜택받으러 지금 바로 GO</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">{'main_copy': ['업종 변경 환영!', '같은 노력, 매출 UP!'], 'sub_copy': '나만의 특별 혜택 받으세요!'}</div>
+                                        <div class="ai-reason">메인 카피는 '업종 변경'을 명확히 환영하고, 원문의 핵심 이점인 '똑같은 노동'을 '같은 노력'으로, '나 혼자만 매출 UP'을 '매출 UP'으로 간결하게 전달합니다. 서브 카피는 '나 혼자만'의 독점적 혜택을 강조하며 행동을 유도합니다. 가독성과 핵심 메시지 전달에 집중했습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.2</span>
+                                        </div>
+                                        <div class="ai-title">{'main_copy': ['사장님, 업종 변경?', '나만 쉽게 매출 UP!'], 'sub_copy': '성공 지원 지금 바로 GO!'}</div>
+                                        <div class="ai-reason">'사장님' 호칭으로 타겟에 직접적으로 말을 걸어 친근감을 높입니다. '똑같은 노동으로 나 혼자만 매출 UP'의 의미를 '나만 쉽게 매출 UP!'으로 풀어내어 더 명확하고 매력적인 이점을 제시합니다. 서브 카피는 '성공 지원'이라는 긍정적인 메시지로 혜택의 가치를 높이고 즉각적인 행동을 유도합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 9.1</span>
+                                        </div>
+                                        <div class="ai-title">{'main_copy': ['업종 변경 고민?', '독점 혜택으로 매출 UP!'], 'sub_copy': '창업 지원 지금 확인!'}</div>
+                                        <div class="ai-reason">'업종 변경 고민?'으로 잠재 고객의 현재 상황에 공감하며 시작하여 몰입도를 높입니다. '나 혼자만'의 의미를 '독점 혜택'으로 명확하고 강력하게 제시하여 차별화된 가치를 강조합니다. 서브 카피는 혜택의 종류를 '창업 지원'으로 명시하고 '지금 확인!'으로 명확한 CTA를 제공합니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/event/partner-awards?utm_source=ceo&utm_medium=non_display&utm_campaign=mkt_prj_partner-awards-2025&utm_content=0221_main_banner_event_mem" target="_blank" class="item-title">배민파트너어워즈가 궁금하다면? - 수상기준부터 성장전략까지 지금 바로 확인해 보세요!</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.2</span>
+                                        </div>
+                                        <div class="ai-title">배민 어워즈
+성장 전략 보기</div>
+                                        <div class="ai-reason">메인 카피에서 '배민 어워즈'로 핵심 내용을 명확히 하고, '성장 전략 보기'로 고객의 직접적인 관심사를 자극하며 간결하게 CTA를 제시했습니다. 서브 카피는 어워즈의 구체적인 가치를 압축적으로 전달하여 궁금증을 유발합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">배민파트너
+성공 비법은?</div>
+                                        <div class="ai-reason">메인 카피에서 '배민파트너'로 타겟 고객을 명확히 하고, '성공 비법은?'이라는 질문 형태로 호기심을 강력하게 유발합니다. 서브 카피에서 어워즈와 연관된 구체적인 정보(수상 기준, 성장 전략)를 제공하며 해결책을 제시합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-title">어워즈 인사이트
+지금 확인하세요!</div>
+                                        <div class="ai-reason">메인 카피에서 '어워즈 인사이트'로 수상 기준과 성장 전략을 포괄하는 지식적 가치를 강조하고, '지금 확인하세요!'라는 명확하고 간결한 CTA를 제시했습니다. 서브 카피는 인사이트의 구체적인 내용(매출 성장)을 추가하여 가치를 높였습니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://direct.lotterentacar.net/plan/planCarList.do?plan_idx=2982&direct_modal=%EA%B0%9C%EC%9D%B8%EC%82%AC%EC%97%85%EC%9E%90&utm_source=baemin&utm_medium=display&utm_campaign=da_mo_%EB%A1%AF%EB%8D%B0_%EB%A1%AF%EB%8D%B0%EA%B2%AC%EC%A0%81%EC%8B%AC%EC%82%AC_%EA%B0%9C%EC%9D%B8%EC%82%AC%EC%97%85%EC%9E%90_baemin&utm_content=02_mo_%EB%A9%94%EC%9D%B8%EB%B0%B0%EB%84%88_%EB%B0%B0%EB%AF%BC%EC%99%B8%EC%8B%9D%EC%97%85%EA%B4%91%EC%9E%A5_%EA%B0%9C%EC%9D%B8%EC%82%AC%EC%97%85%EC%9E%90_%EC%B9%B4%EB%8B%88%EB%B0%9C&utm_term=%EA%B4%80%EC%8B%AC_%EC%83%81%ED%92%88_%EA%B0%9C%EC%9D%B8%EC%82%AC%EC%97%85%EC%9E%90_%EB%A7%88%EC%9D%B4%EC%B9%B4%ED%94%8C%EB%9F%AC%EC%8A%A4" target="_blank" class="item-title">사장님, 신차 뽑고 절세혜택 받으세요! - 비용처리+부가세 환급 가능한 카니발 월 34만원대부터</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.2</span>
+                                        </div>
+                                        <div class="ai-title">{'main_line1': '사장님, 카니발로', 'main_line2': '절세+환급 받으세요!'}</div>
+                                        <div class="ai-reason">가장 직관적이고 액션 지향적인 제안입니다. '사장님'으로 타겟을 명확히 하고, '카니발' 제품과 핵심 혜택인 '절세+환급'을 메인 카피에서 바로 제시하여 정보 전달력을 높였습니다. 서브 카피에서 가격 정보와 구체적인 혜택(비용/부가세)을 명시하여 모든 중요한 정보를 간결하게 압축했습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-title">{'main_line1': '카니발로 누리는', 'main_line2': '절세+환급 혜택!'}</div>
+                                        <div class="ai-reason">혜택의 즐거움과 포괄성을 강조하는 표현('누리는 혜택')을 사용했습니다. 메인 카피에서 제품과 두 가지 핵심 혜택을 깔끔하게 정리하고, 서브 카피에서 가장 매력적인 가격 정보와 '비용처리+부가세 환급'이라는 구체적인 혜택 내용을 명시하여 신뢰도를 높였습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">{'main_line1': '세금 절약!', 'main_line2': '카니발 월 34만원대'}</div>
+                                        <div class="ai-reason">사장님들이 가장 솔깃할 만한 '세금 절약'을 최우선으로 내세워 강한 후킹을 유도했습니다. 이어서 제품명과 파격적인 가격을 제시하여 호기심을 자극하고, 서브 카피에서 구체적인 혜택과 '지금!'이라는 시급성을 더해 행동을 유도합니다. 정보를 나눠 배치하여 시선이 자연스럽게 흐르도록 했습니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://mart.baemin.com/campaign/landing/BwfQGfMrDwcXudLy" target="_blank" class="item-title">주목! 치즈 특가 할인! - 다양한 치즈 저렴하게 구매하세요!</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://mart.baemin.com/campaign/landing/mbDgTuMqsPSvTNEh" target="_blank" class="item-title">편리하고 빠르게 - 신선한 식재료 배민상회 내일도착!</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>최신외식업소식</h3>
+                    <span class="count-badge">3개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/guide/14360" target="_blank" class="item-title">소식 2월 셋째 주 배민소식 (영수증 QR 생성, 배민앱 다국어 지원, 2026 외식업 트렌드) 6일 전</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/knowhow/14357" target="_blank" class="item-title">동향 [이슈배달] '저신용 자영업자 전용' 햇살론 카드가 출시됩니다 11일 전</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/knowhow/14355" target="_blank" class="item-title">지원 [최대 480만 원] '고효율 냉장고·에어컨' 구매 비용을 지원해요 12일 전</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>서비스강조배너</h3>
+                    <span class="count-badge">1개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://mart.baemin.com/campaign/landing/dXQfDCWRBRmsgMTi" target="_blank" class="item-title">배민상회 쌀 사는 날 특가!</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.5</span>
+                                        </div>
+                                        <div class="ai-title">배민상회 쌀! 사장님 특가</div>
+                                        <div class="ai-reason">사장님을 명확히 언급하여, 이 특가가 단순히 가격 할인이 아닌 '사장님을 위한 특별한 서비스/혜택'임을 강조합니다. '!'를 활용해 주목도를 높이고, 15자 제한을 정확히 맞췄습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">사장님! 든든한 쌀 특가</div>
+                                        <div class="ai-reason">'든든한'이라는 표현을 통해 단순히 싸게 파는 것을 넘어, 안정적이고 믿을 수 있는 공급이라는 '서비스 가치'를 전달합니다. 사장님의 사업 운영에 실질적인 도움이 됨을 암시하며, 친근하게 사장님을 호명합니다. 14자로 여유도 있습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">배민상회 쌀 사는날 특가!</div>
+                                        <div class="ai-reason">기존 문구를 최대한 살리면서 '사는 날'을 붙여 15자로 맞춘 현실적인 대안입니다. '사는날'이 특정 이벤트를 암시하며, 사장님께 주기적으로 돌아오는 혜택의 날이라는 '서비스 경험'을 제공함을 간접적으로 전달합니다. 원문의 의미를 가장 잘 보존합니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>파트너비즈니스팁</h3>
+                    <span class="count-badge">14개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <span class="item-title">[탭] 가게 운영 TIP</span>
+                            <span class="item-status status-warn">📑 탭메뉴</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/guide/14283" target="_blank" class="item-title">[가게 운영 TIP] ① 주문이 몰릴 때, 우리 가게는 열려있나요? ⏰</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/guide/14280" target="_blank" class="item-title">[가게 운영 TIP] ② 주문을 부르는, 최소주문금액 설정 방법 💖</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/guide/14073" target="_blank" class="item-title">[가게 운영 TIP] ③ 데이터 알아보는 즉시할인 효과는?</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <span class="item-title">[탭] 2026 외식업트렌드</span>
+                            <span class="item-status status-warn">📑 탭메뉴</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/knowhow/14344" target="_blank" class="item-title">[2026 외식업트렌드] [자기만족 건강식] 이렇게 활용해요</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/knowhow/14343" target="_blank" class="item-title">[2026 외식업트렌드] [미식의 일상화] 이렇게 활용해요</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/knowhow/14342" target="_blank" class="item-title">[2026 외식업트렌드] [한그릇 오리지널리티] 이렇게 활용해요</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <span class="item-title">[탭] 겨울 시즌 주문취소 관리</span>
+                            <span class="item-status status-warn">📑 탭메뉴</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/guide/8577" target="_blank" class="item-title">[겨울 시즌 주문취소 관리] ① 고객과의 신뢰를 지키는 주문취소 대응법</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/guide/13141" target="_blank" class="item-title">[겨울 시즌 주문취소 관리] ② 오픈부터 마감까지, 주문취소를 대비해요</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/guide/12701" target="_blank" class="item-title">[겨울 시즌 주문취소 관리] 📌 긴급 상황 시, 자동 영업 임시중지 설정</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <span class="item-title">[탭] 영상교육</span>
+                            <span class="item-status status-warn">📑 탭메뉴</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <span class="item-title">[탭] 마감 임박 교육</span>
+                            <span class="item-status status-warn">📑 탭메뉴</span>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>최신장사노하우</h3>
+                    <span class="count-badge">3개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/knowhow/14344" target="_blank" class="item-title">[자기만족 건강식] 이렇게 활용해요</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/knowhow/14343" target="_blank" class="item-title">[미식의 일상화] 이렇게 활용해요</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/knowhow/14342" target="_blank" class="item-title">[한그릇 오리지널리티] 이렇게 활용해요</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>장사노하우슬롯</h3>
+                    <span class="count-badge">2개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/knowhow/14313" target="_blank" class="item-title">올해 첫 E-9 외국인근로자 신청! 이렇게 하세요</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/knowhow/14330" target="_blank" class="item-title">[25만원] 공과금·보험료 지원! '소상공인 바우처' 놓치지 마세요</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>이벤트혜택</h3>
+                    <span class="count-badge">3개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/affiliates/14086" target="_blank" class="item-title">배민상회 | 장사 꿀템인 배달 아이디어 제품! 100원에 구매하세요 | ~ 12. 31까지</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/affiliates/14139" target="_blank" class="item-title">한그릇 | 한그릇 할인 배달비 지원 받으세요! 🎄 | ~ 03. 31까지</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/affiliates/6060" target="_blank" class="item-title">배민아카데미 | 사장님을 위한 공간 무료로 지원해 드려요! | ~ 05. 24까지</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>외식업광장숏츠</h3>
+                    <span class="count-badge">4개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/affiliates/14351" target="_blank" class="item-title">바쁜 사장님들을 위한 전자제품 혜택 모음!</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/affiliates/14325" target="_blank" class="item-title">배민상회에서 설 연휴 대비 장보기 추천!</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/guide/9543" target="_blank" class="item-title">알뜰 한집 배달팁 어떻게 설정하나요?</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/guide/3511" target="_blank" class="item-title">가게배달 배달팁 설정 어떻게 해요?</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>마이영역배너</h3>
+                    <span class="count-badge">3개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://ceo.baemin.com/affiliates/13116" target="_blank" class="item-title">단 1만원, 우리가게가 달라집니다 - 가게도 알리고 나눔도 실천하세요!</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.2</span>
+                                        </div>
+                                        <div class="ai-title">가게 홍보와 나눔, 1만원에! - 매출UP! 좋은 이미지까지 얻으세요</div>
+                                        <div class="ai-reason">메인 카피는 '홍보'와 '나눔'이라는 핵심 혜택을 명확히 제시하고 '1만원'이라는 저렴한 비용을 강조합니다. 서브 카피는 매출 증대와 브랜드 이미지 개선이라는 구체적인 성과를 언급하여, 경제적 이득과 사회적 가치를 동시에 추구할 수 있음을 직관적으로 보여줍니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">1만원으로 가게 알리고 나누세요! - 우리 가게 성장과 착한 소비 유도!</div>
+                                        <div class="ai-reason">메인 카피는 '1만원'이라는 비용과 함께 '알리고 나누세요!'라는 명확한 행동 유도 문구로 전환하여 사장님들의 참여를 독려합니다. 서브 카피는 단순히 알리는 것을 넘어 '착한 소비'를 통해 고객들에게 긍정적인 이미지를 심어주고 장기적인 가게 성장을 기대할 수 있다는 점을 부각합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-title">1만원, 우리 가게 달라집니다! - 가게 알림과 나눔, 한번에 해결하세요</div>
+                                        <div class="ai-reason">메인 카피는 원본 문구의 핵심 메시지인 '가게의 변화'를 유지하면서 '1만원'을 전면에 내세워 비용 효율성을 강조합니다. 서브 카피는 '한번에 해결'이라는 문구를 통해 가게 홍보와 나눔이라는 두 가지 목표를 쉽고 효율적으로 달성할 수 있음을 어필하여, 바쁜 사장님들의 편의성을 강조합니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://mart.baemin.com/campaign/landing/RwxlvduOSzEebQBN" target="_blank" class="item-title">배민상회 쌀 사는 날! - 고품질 쌀 상품, 특가로 만나보세요!</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">사장님, 쌀 특가 찬스!
+고품질 쌀 최저가, 지금 바로 구매!</div>
+                                        <div class="ai-reason">메인 카피에서 '사장님'을 직접 지칭하여 타겟팅을 명확히 하고, '특가 찬스'로 즉각적인 이점을 강조했습니다. 서브 카피는 '최저가'와 '지금 바로 구매'로 구매 동기를 높이고 행동을 유도하여 혜택의 강력함과 시급성을 전달합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-title">쌀 구매, 오늘이 기회!
+배민상회 고품질 쌀, 특가로 득템하세요!</div>
+                                        <div class="ai-reason">메인 카피 '오늘이 기회'라는 문구로 시급성과 특별함을 전달하며, 사장님에게 특별한 구매의 적기임을 암시합니다. 서브 카피는 '배민상회'라는 플랫폼 명시와 '득템'이라는 캐주얼하지만 이득을 강조하는 표현으로 흥미를 유발하고 구매를 유도합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 9.2</span>
+                                        </div>
+                                        <div class="ai-title">사장님! 쌀 가격, 믿기세요?
+최상급 쌀 한정 특가, 지금 확인하세요!</div>
+                                        <div class="ai-reason">메인 카피는 질문 형식으로 호기심을 유발하고 파격적인 가격을 암시하여 클릭을 유도합니다. 서브 카피는 '최상급'으로 품질을 최대로 강조하며, '한정 특가'로 희소성을 부여하고 '지금 확인하세요'로 즉시 행동하도록 유도하여 기대감을 높입니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://mart.baemin.com/campaign/landing/LXjGvBKpdDxlJzzr" target="_blank" class="item-title">배민상회 2월 상회대축제 오픈 - 최대 87% 할인에 쿠폰혜택까지</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">{'main': '배민상회 상회대축제 오픈!', 'sub': '최대 87% 할인에 쿠폰까지!'}</div>
+                                        <div class="ai-reason">메인 카피는 브랜드명, 이벤트명, 상태를 명확히 포함하여 간결하게 핵심을 전달합니다. 서브 카피는 두 가지 주요 혜택(최대 할인율, 쿠폰)을 군더더기 없이 나열하여 빠르게 인지할 수 있도록 했습니다. 가장 기본적인 정보를 충실히 전달하는 조합입니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.2</span>
+                                        </div>
+                                        <div class="ai-title">{'main': '사장님, 상회대축제 찬스!', 'sub': '최대 87% 할인+쿠폰, 지금 확인!'}</div>
+                                        <div class="ai-reason">메인 카피에서 '사장님'을 직접 호칭하여 개인화된 메시지로 주의를 끌고, '찬스'라는 단어로 기회임을 강조합니다. 서브 카피는 핵심 혜택을 짧게 요약하고 '지금 확인!'이라는 명확한 클릭 유도(Call To Action)를 넣어 즉각적인 행동을 유도합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-title">{'main': '배민상회 2월 역대급 할인!', 'sub': '최대 87% 할인과 쿠폰 혜택 놓치지 마세요!'}</div>
+                                        <div class="ai-reason">메인 카피에서 '2월'과 '역대급 할인'을 강조하여 시기성과 혜택의 규모를 부각합니다. 이벤트명보다는 가장 강력한 혜택을 전면에 내세워 시선을 사로잡습니다. 서브 카피는 구체적인 할인율과 쿠폰 혜택을 명시하며, '놓치지 마세요!'라는 문구로 참여를 독려합니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>플레이스홀더</h3>
+                    <span class="count-badge">1개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <span class="item-title">2026 외식업트렌드 활용법 공개!</span>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">2026 트렌드: 매출 Up 전략!</div>
+                                        <div class="ai-reason">'2026 트렌드'로 핵심 정보를 명확히 전달하고, 사장님들의 가장 큰 관심사인 '매출 증대'와 실용적인 '전략'을 직관적으로 제시하여 참여 동기를 부여합니다. 'Up'은 짧고 강조 효과가 큽니다. (19자)</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-title">2026 외식 트렌드, 기회 포착!</div>
+                                        <div class="ai-reason">'2026 외식 트렌드'로 시의성과 주제를 명확히 하고, '기회 포착!'으로 미래를 대비하고 시장을 선점할 수 있는 긍정적이고 도전적인 메시지를 전달하여 참여를 유도합니다. (19자)</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 9.2</span>
+                                        </div>
+                                        <div class="ai-title">2026 외식 성공 비법 공개!</div>
+                                        <div class="ai-reason">'2026 외식'으로 타겟과 시점을 명확히 하고, '성공 비법 공개!'는 강력한 후킹으로 사장님들이 가장 궁금해하는 '성공'이라는 키워드를 활용해 궁금증과 참여 욕구를 높입니다. (19자)</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
+                    </div>
+                    
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- 푸터 -->
+        <div class="footer">
+            <p>배민외식업광장 자동 모니터링 시스템</p>
+            <p>Powered by Python + Selenium + GitHub Pages</p>
+        </div>
+    </div>
+    
+    <!-- ⚙️ 설정 모달 -->
+    <div id="settings-modal" class="settings-modal" onclick="closeSettingsIfBackground(event)">
+        <div class="settings-modal-box">
+            <h3>⚙️ GitHub 설정</h3>
+            <p class="settings-note">토큰은 이 브라우저의 localStorage에만 저장되며 외부로 전송되지 않습니다.</p>
+            <label class="settings-label" for="settings-token-input">GitHub Personal Access Token</label>
+            <input type="password" id="settings-token-input" class="settings-input"
+                   placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                   autocomplete="off">
+            <p class="settings-note" style="margin-top:8px;">
+                ※ <strong>workflow</strong> 권한이 있는 PAT가 필요합니다.<br>
+                GitHub → Settings → Developer settings → Personal access tokens
+            </p>
+            <div class="settings-btn-row">
+                <button class="settings-cancel-btn" onclick="closeSettings()">취소</button>
+                <button class="settings-save-btn" onclick="saveSettings()">💾 저장</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크린샷 모달 -->
+    <div id="screenshot-modal" class="screenshot-modal" onclick="closeScreenshotIfBackground(event)">
+        <div class="screenshot-modal-inner">
+            <button class="screenshot-close-btn" onclick="closeScreenshot()">✕ 닫기</button>
+            <img id="screenshot-img" src="" alt="스크린샷"
+                 onerror="this.style.display='none'; document.getElementById('screenshot-error').style.display='block';">
+            <p class="screenshot-caption" id="screenshot-caption"></p>
+            <p class="screenshot-error" id="screenshot-error" style="display:none;">⚠️ 스크린샷을 불러올 수 없습니다</p>
+        </div>
+    </div>
+
+    <!-- 토스트 알림 -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // ── 설정 ──────────────────────────────────────────────
+        const GITHUB_REPO = 'kwkimd/baemmin-monitor';
+        const WORKFLOW_FILE = 'monitor.yml';
+
+        // ── 토스트 알림 ───────────────────────────────────────
+        function showToast(msg, type = 'info', duration = 4000) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast ' + type;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), duration);
+        }
+
+        // ── 모니터링 실행 ─────────────────────────────────────
+        async function triggerMonitoring() {
+            const token = localStorage.getItem('baemin_gh_token') || '';
+            if (!token) {
+                showToast('⚙️ 먼저 GitHub 토큰을 설정해주세요.', 'info');
+                openSettings();
+                return;
+            }
+            if (!GITHUB_REPO) {
+                showToast('❌ GitHub 저장소 정보가 없습니다.
+관리자에게 문의하세요.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('run-btn');
+            btn.disabled = true;
+            btn.classList.add('running');
+            btn.textContent = '⏳ 요청 중...';
+
+            try {
+                const resp = await fetch(
+                    `https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ ref: 'main' })
+                    }
+                );
+
+                if (resp.status === 204) {
+                    btn.textContent = '✅ 실행됨';
+                    showToast('✅ 모니터링이 시작되었습니다!
+약 5분 후 새로고침하면 결과를 볼 수 있습니다.', 'success', 6000);
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.classList.remove('running');
+                        btn.textContent = '🔄 모니터링 실행';
+                    }, 10000);
+                } else if (resp.status === 401) {
+                    showToast('❌ 인증 실패: 토큰이 올바르지 않습니다.
+⚙️ 설정에서 토큰을 다시 입력하세요.', 'error', 6000);
+                    btn.disabled = false;
+                    btn.classList.remove('running');
+                    btn.textContent = '🔄 모니터링 실행';
+                } else if (resp.status === 403) {
+                    showToast('❌ 권한 부족: workflow 권한이 있는 토큰이 필요합니다.', 'error', 6000);
+                    btn.disabled = false;
+                    btn.classList.remove('running');
+                    btn.textContent = '🔄 모니터링 실행';
+                } else {
+                    const txt = await resp.text();
+                    showToast(`❌ 실행 실패 (HTTP ${resp.status})
+${txt.slice(0, 100)}`, 'error', 6000);
+                    btn.disabled = false;
+                    btn.classList.remove('running');
+                    btn.textContent = '🔄 모니터링 실행';
+                }
+            } catch (e) {
+                showToast(`❌ 네트워크 오류: ${e.message}`, 'error', 6000);
+                btn.disabled = false;
+                btn.classList.remove('running');
+                btn.textContent = '🔄 모니터링 실행';
+            }
+        }
+
+        // ── 설정 모달 ─────────────────────────────────────────
+        function openSettings() {
+            const saved = localStorage.getItem('baemin_gh_token') || '';
+            document.getElementById('settings-token-input').value = saved;
+            document.getElementById('settings-modal').classList.add('active');
+            setTimeout(() => document.getElementById('settings-token-input').focus(), 100);
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').classList.remove('active');
+        }
+
+        function closeSettingsIfBackground(event) {
+            if (event.target === document.getElementById('settings-modal')) {
+                closeSettings();
+            }
+        }
+
+        function saveSettings() {
+            const token = document.getElementById('settings-token-input').value.trim();
+            if (!token) {
+                showToast('⚠️ 토큰을 입력해주세요.', 'info');
+                return;
+            }
+            localStorage.setItem('baemin_gh_token', token);
+            closeSettings();
+            showToast('✅ 토큰이 저장되었습니다.', 'success', 3000);
+        }
+
+        // ── 버전 / 스크린샷 ───────────────────────────────────
+        function changeVersion(version) {
+            if (version) {
+                window.location.href = 'versions/' + version + '.html';
+            }
+        }
+
+        function showScreenshot(version) {
+            if (!version) return;
+            const imgUrl = 'screenshots/' + version + '.png';
+            const img = document.getElementById('screenshot-img');
+            const errMsg = document.getElementById('screenshot-error');
+            const caption = document.getElementById('screenshot-caption');
+            img.style.display = 'block';
+            errMsg.style.display = 'none';
+            img.src = imgUrl;
+            caption.textContent = version.replace('_', ' ').replace(/-/g, ':');
+            document.getElementById('screenshot-modal').classList.add('active');
+        }
+
+        function closeScreenshot() {
+            document.getElementById('screenshot-modal').classList.remove('active');
+            document.getElementById('screenshot-img').src = '';
+        }
+
+        function closeScreenshotIfBackground(event) {
+            if (event.target === document.getElementById('screenshot-modal')) {
+                closeScreenshot();
+            }
+        }
+
+        function toggleAI(btn) {
+            const content = btn.nextElementSibling;
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                btn.textContent = '🔼 AI 제안 숨기기';
+            } else {
+                content.style.display = 'none';
+                btn.textContent = '💡 AI 제안 보기';
+            }
+        }
+    </script>
+</body>
+</html>

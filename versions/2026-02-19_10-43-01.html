@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>배민외식업광장 모니터링 대시보드</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* 헤더 */
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header .update-time {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .header .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* 버전 선택 */
+        .version-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+        
+        .version-selector label {
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+        }
+        
+        .version-selector select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            min-width: 200px;
+        }
+        
+        .version-selector select:hover {
+            border-color: #667eea;
+        }
+        
+        /* 🚨 알림 섹션 */
+        .alert-section {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 5px 20px rgba(238, 90, 90, 0.3);
+        }
+        
+        .alert-header h3 {
+            color: white;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .alert-table-wrapper {
+            overflow-x: auto;
+        }
+        
+        .alert-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .alert-table th,
+        .alert-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .alert-table th {
+            background: rgba(0,0,0,0.1);
+            font-weight: 600;
+        }
+        
+        .alert-table tr:hover {
+            background: rgba(0,0,0,0.1);
+        }
+        
+        .alert-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .alert-critical {
+            background: #fff;
+            color: #c53030;
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .alert-error {
+            background: #fecaca;
+            color: #991b1b;
+        }
+        
+        /* 확인 필요 섹션 */
+        .need-check-section {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .need-check-header {
+            margin-bottom: 15px;
+        }
+        
+        .need-check-header h3 {
+            color: #c53030;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background: #c53030;
+            color: white;
+            border-radius: 50%;
+            font-size: 11px;
+            cursor: help;
+            position: relative;
+        }
+        
+        .tooltip-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: 25px;
+            left: 0;
+            background: #333;
+            color: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: pre-line;
+            min-width: 280px;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            line-height: 1.6;
+        }
+        
+        .need-check-table-wrapper {
+            overflow-x: auto;
+        }
+        
+        .need-check-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .need-check-table th,
+        .need-check-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #fed7d7;
+        }
+        
+        .need-check-table th {
+            background: #feb2b2;
+            color: #742a2a;
+            font-weight: 500;
+        }
+        
+        .need-check-table tr:hover {
+            background: #fff0f0;
+        }
+        
+        /* 통계 카드 */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .stat-card .label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .stat-card.warning .number {
+            color: #e53e3e;
+        }
+        
+        /* 영역 카드 */
+        .areas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .area-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .area-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .area-header h3 {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .count-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+        
+        .area-items {
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            gap: 10px;
+        }
+        
+        .item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-title {
+            flex: 1;
+            font-size: 13px;
+            color: #333;
+            text-decoration: none;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        
+        .item-title:hover {
+            color: #667eea;
+        }
+        
+        .item-status {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            white-space: nowrap;
+        }
+        
+        .status-ok {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-warn {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        
+        /* 푸터 */
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            padding: 30px;
+            font-size: 13px;
+        }
+        
+        /* 스크롤바 */
+        .area-items::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .area-items::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .area-items::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .header-top {
+                flex-direction: column;
+            }
+            
+            .areas {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-card .number {
+                font-size: 28px;
+            }
+            
+            .version-selector {
+                width: 100%;
+            }
+            
+            .version-selector select {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <div class="header">
+            <div class="header-top">
+                <div>
+                    <h1>🍽️ 배민외식업광장 모니터링 대시보드</h1>
+                    <p class="update-time">📅 마지막 업데이트: 2026-02-19 10:43:01 (KST)</p>
+                    <span class="status-badge status-success">
+                        ✅ 정상 수집 완료
+                    </span>
+                </div>
+                
+            </div>
+        </div>
+        
+        <!-- 🚨 영역 노출 알림 -->
+        
+        <div class="alert-section">
+            <div class="alert-header">
+                <h3>🚨 영역 노출 알림 (1개)</h3>
+            </div>
+            <div class="alert-table-wrapper">
+                <table class="alert-table">
+                    <thead>
+                        <tr>
+                            <th>상태</th>
+                            <th>영역</th>
+                            <th>기대</th>
+                            <th>실제</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+            <tr>
+                <td><span class="alert-badge alert-warning">부족</span></td>
+                <td><strong>마이영역배너</strong></td>
+                <td>기대: 3개</td>
+                <td>실제: 2개</td>
+            </tr>
+            
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        
+        <!-- 확인 필요 항목 -->
+        
+        <div class="need-check-section">
+            <div class="need-check-header">
+                <h3>⚠️ 확인 필요 항목 (2개)
+                    <span class="tooltip-icon" data-tooltip="확인 필요 기준:&#10;• 링크없음: 링크가 비어있거나 javascript:, # 으로 시작&#10;• 확인불가: 링크 접속 시 타임아웃 또는 오류&#10;• 오류(4xx/5xx): HTTP 상태 코드 오류&#10;&#10;※ 탭메뉴는 고정값이므로 제외">ⓘ</span>
+                </h3>
+            </div>
+            <div class="need-check-table-wrapper">
+                <table class="need-check-table">
+                    <thead>
+                        <tr>
+                            <th>영역</th>
+                            <th>제목</th>
+                            <th>상태</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+            <tr>
+                <td>메인배너</td>
+                <td>사장님, 신차 뽑고 절세혜택 받으세요! - 비용처리+부가세 환급 가능한 카니발 월 34만원...</td>
+                <td><span class="status-badge status-error">확인불가</span></td>
+            </tr>
+            
+            <tr>
+                <td>플레이스홀더</td>
+                <td>2026 외식업트렌드 활용법 공개!...</td>
+                <td><span class="status-badge status-error">링크없음</span></td>
+            </tr>
+            
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        
+        <!-- 통계 -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number">43</div>
+                <div class="label">총 수집 항목</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">10</div>
+                <div class="label">모니터링 영역</div>
+            </div>
+            <div class="stat-card">
+                <div class="number">41</div>
+                <div class="label">정상 링크</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="number">2</div>
+                <div class="label">확인 필요</div>
+            </div>
+        </div>
+        
+        <!-- 영역별 카드 -->
+        <div class="areas">
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>메인배너</h3>
+                    <span class="count-badge">7개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <a href="https://mart.baemin.com/campaign/landing/GWxYDHanvQbWFoQG" target="_blank" class="item-title">배민상회 쌀 사는 날! - 엄선한 고품질 쌀 상품 특별한 가격으로 만나보세요!</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/event/partner-awards?utm_source=ceo&utm_medium=non_display&utm_campaign=mkt_prj_partner-awards-2025&utm_content=0221_main_banner_event_mem" target="_blank" class="item-title">배민파트너어워즈가 궁금하다면? - 수상기준부터 성장전략까지 지금 바로 확인해 보세요!</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/franchise/brand-search" target="_blank" class="item-title">스타벅스 커피 쿠폰도 받고 - 인기 프랜차이즈 브랜드 창업지원비 받아보세요</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://mart.baemin.com/campaign/landing/BwfQGfMrDwcXudLy" target="_blank" class="item-title">주목! 치즈 특가 할인! - 다양한 치즈 저렴하게 구매하세요!</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://direct.lotterentacar.net/plan/planCarList.do?plan_idx=2982&direct_modal=%EA%B0%9C%EC%9D%B8%EC%82%AC%EC%97%85%EC%9E%90&utm_source=baemin&utm_medium=display&utm_campaign=da_mo_%EB%A1%AF%EB%8D%B0_%EB%A1%AF%EB%8D%B0%EA%B2%AC%EC%A0%81%EC%8B%AC%EC%82%AC_%EA%B0%9C%EC%9D%B8%EC%82%AC%EC%97%85%EC%9E%90_baemin&utm_content=02_mo_%EB%A9%94%EC%9D%B8%EB%B0%B0%EB%84%88_%EB%B0%B0%EB%AF%BC%EC%99%B8%EC%8B%9D%EC%97%85%EA%B4%91%EC%9E%A5_%EA%B0%9C%EC%9D%B8%EC%82%AC%EC%97%85%EC%9E%90_%EC%B9%B4%EB%8B%88%EB%B0%9C&utm_term=%EA%B4%80%EC%8B%AC_%EC%83%81%ED%92%88_%EA%B0%9C%EC%9D%B8%EC%82%AC%EC%97%85%EC%9E%90_%EB%A7%88%EC%9D%B4%EC%B9%B4%ED%94%8C%EB%9F%AC%EC%8A%A4" target="_blank" class="item-title">사장님, 신차 뽑고 절세혜택 받으세요! - 비용처리+부가세 환급 가능한 카니발 월 34만원대부터</a>
+                        <span class="item-status status-error">⚠️ 확인불가</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://mart.baemin.com/campaign/landing/iRYsMFYyuojhfkZd" target="_blank" class="item-title">배민상회 내일도착 - 장사에 필요한 식재료, 배달용기 오늘 주문하면 내일 도착</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://mart.baemin.com/campaign/landing/mbDgTuMqsPSvTNEh" target="_blank" class="item-title">편리하고 빠르게 - 신선한 식재료 배민상회 내일도착!</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>최신외식업소식</h3>
+                    <span class="count-badge">3개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/guide/14360" target="_blank" class="item-title">소식 2월 셋째 주 배민소식 (영수증 QR 생성, 배민앱 다국어 지원, 2026 외식업 트렌드) 1일 전</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/knowhow/14357" target="_blank" class="item-title">동향 [이슈배달] '저신용 자영업자 전용' 햇살론 카드가 출시됩니다 6일 전</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/knowhow/14355" target="_blank" class="item-title">지원 [최대 480만 원] '고효율 냉장고·에어컨' 구매 비용을 지원해요 7일 전</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>서비스강조배너</h3>
+                    <span class="count-badge">1개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/event/partner-awards?utm_source=ceo&utm_medium=non_display&utm_campaign=mkt_prj_partner-awards-2025&utm_content=0219_service_banner_event_mem" target="_blank" class="item-title">수상기준부터 성장전략까지 지금 확인!</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>파트너비즈니스팁</h3>
+                    <span class="count-badge">14개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <span class="item-title">[탭] 가게 운영 TIP</span>
+                        <span class="item-status status-warn">📑 탭메뉴</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/guide/14283" target="_blank" class="item-title">[가게 운영 TIP] ① 주문이 몰릴 때, 우리 가게는 열려있나요? ⏰</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/guide/14280" target="_blank" class="item-title">[가게 운영 TIP] ② 주문을 부르는, 최소주문금액 설정 방법 💖</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/guide/14073" target="_blank" class="item-title">[가게 운영 TIP] ③ 데이터 알아보는 즉시할인 효과는?</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <span class="item-title">[탭] 2026 외식업트렌드</span>
+                        <span class="item-status status-warn">📑 탭메뉴</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/knowhow/14344" target="_blank" class="item-title">[2026 외식업트렌드] [자기만족 건강식] 이렇게 활용해요</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/knowhow/14343" target="_blank" class="item-title">[2026 외식업트렌드] [미식의 일상화] 이렇게 활용해요</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/knowhow/14342" target="_blank" class="item-title">[2026 외식업트렌드] [한그릇 오리지널리티] 이렇게 활용해요</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <span class="item-title">[탭] 겨울 시즌 주문취소 관리</span>
+                        <span class="item-status status-warn">📑 탭메뉴</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/guide/8577" target="_blank" class="item-title">[겨울 시즌 주문취소 관리] ① 고객과의 신뢰를 지키는 주문취소 대응법</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/guide/13141" target="_blank" class="item-title">[겨울 시즌 주문취소 관리] ② 오픈부터 마감까지, 주문취소를 대비해요</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/guide/12701" target="_blank" class="item-title">[겨울 시즌 주문취소 관리] 📌 긴급 상황 시, 자동 영업 임시중지 설정</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <span class="item-title">[탭] 영상교육</span>
+                        <span class="item-status status-warn">📑 탭메뉴</span>
+                    </div>
+                    
+                    <div class="item">
+                        <span class="item-title">[탭] 마감 임박 교육</span>
+                        <span class="item-status status-warn">📑 탭메뉴</span>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>최신장사노하우</h3>
+                    <span class="count-badge">6개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/knowhow/14344" target="_blank" class="item-title">[자기만족 건강식] 이렇게 활용해요</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/knowhow/14343" target="_blank" class="item-title">[미식의 일상화] 이렇게 활용해요</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/knowhow/14342" target="_blank" class="item-title">[한그릇 오리지널리티] 이렇게 활용해요</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://academy.baemin.com/edu/detail/2051/?utm_source=ceopage&utm_medium=mainslot&utm_campaign=edu_daily" target="_blank" class="item-title">신청 마감 D-3</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://academy.baemin.com/edu/detail/2032/?utm_source=ceopage&utm_medium=mainslot&utm_campaign=edu_daily" target="_blank" class="item-title">오늘 신청 마감</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://academy.baemin.com/edu/detail/2060/?utm_source=ceopage&utm_medium=mainslot&utm_campaign=edu_daily" target="_blank" class="item-title">오늘 신청 마감</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>장사노하우슬롯</h3>
+                    <span class="count-badge">2개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/knowhow/14313" target="_blank" class="item-title">올해 첫 E-9 외국인근로자 신청! 이렇게 하세요</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/knowhow/14330" target="_blank" class="item-title">[25만원] 공과금·보험료 지원! '소상공인 바우처' 놓치지 마세요</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>이벤트혜택</h3>
+                    <span class="count-badge">3개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/affiliates/14086" target="_blank" class="item-title">배민상회 | 장사 꿀템인 배달 아이디어 제품! 100원에 구매하세요 | ~ 12. 31까지</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/affiliates/14139" target="_blank" class="item-title">한그릇 | 한그릇 할인 배달비 지원 받으세요! 🎄 | ~ 03. 31까지</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/affiliates/6060" target="_blank" class="item-title">배민아카데미 | 사장님을 위한 공간 무료로 지원해 드려요! | ~ 05. 24까지</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>외식업광장숏츠</h3>
+                    <span class="count-badge">4개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/affiliates/14351" target="_blank" class="item-title">바쁜 사장님들을 위한 전자제품 혜택 모음!</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/affiliates/14325" target="_blank" class="item-title">배민상회에서 설 연휴 대비 장보기 추천!</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/guide/9543" target="_blank" class="item-title">알뜰 한집 배달팁 어떻게 설정하나요?</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/guide/3511" target="_blank" class="item-title">가게배달 배달팁 설정 어떻게 해요?</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>마이영역배너</h3>
+                    <span class="count-badge">2개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <a href="https://mart.baemin.com/campaign/landing/RwxlvduOSzEebQBN" target="_blank" class="item-title">배민상회 쌀 사는 날! - 고품질 쌀 상품, 특가로 만나보세요!</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                    <div class="item">
+                        <a href="https://ceo.baemin.com/event/partner-awards?utm_source=ceo&utm_medium=non_display&utm_campaign=mkt_prj_partner-awards-2025&utm_content=0219_mybanner_nor" target="_blank" class="item-title">배민파트너어워즈의 모든 것 - 수상기준부터 성장전략까지!</a>
+                        <span class="item-status status-ok">✅ 정상</span>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="area-card">
+                <div class="area-header">
+                    <h3>플레이스홀더</h3>
+                    <span class="count-badge">1개</span>
+                </div>
+                <div class="area-items">
+                    
+                    <div class="item">
+                        <span class="item-title">2026 외식업트렌드 활용법 공개!</span>
+                        <span class="item-status status-error">⚠️ 링크없음</span>
+                    </div>
+                    
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- 푸터 -->
+        <div class="footer">
+            <p>배민외식업광장 자동 모니터링 시스템</p>
+            <p>Powered by Python + Selenium + GitHub Pages</p>
+        </div>
+    </div>
+    
+    <script>
+        function changeVersion(version) {
+            if (version) {
+                window.location.href = 'versions/' + version + '.html';
+            }
+        }
+    </script>
+</body>
+</html>
