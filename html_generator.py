@@ -30,7 +30,7 @@ def _titles_match(title1: str, title2: str, threshold: float = 0.85) -> bool:
 KST = timezone(timedelta(hours=9))
 
 
-def generate_html_report(results, version_list=None, ai_suggestions=None):
+def generate_html_report(results, version_list=None, ai_suggestions=None, github_repo=None):
     """모니터링 결과를 HTML로 변환 (AI 제안 포함)"""
     
     if version_list is None:
@@ -141,6 +141,13 @@ def generate_html_report(results, version_list=None, ai_suggestions=None):
         </div>
         '''
     
+    # GitHub Pages 기본 URL 계산 (버전 이동 시 사용)
+    if github_repo and '/' in github_repo:
+        owner, repo_name = github_repo.split('/', 1)
+        github_pages_base = f"https://{owner}.github.io/{repo_name}/"
+    else:
+        github_pages_base = ""
+
     # 버전 선택 드롭다운 HTML
     version_options = ""
     current_version = f"{results.get('date', '')}_{results.get('time', '').replace(':', '-')}"
@@ -817,7 +824,12 @@ def generate_html_report(results, version_list=None, ai_suggestions=None):
     <script>
         function changeVersion(version) {{
             if (version) {{
-                window.location.href = 'versions/' + version + '.html';
+                var base = '{github_pages_base}';
+                if (base) {{
+                    window.location.href = base + 'versions/' + version + '.html';
+                }} else {{
+                    window.location.href = 'versions/' + version + '.html';
+                }}
             }}
         }}
         
