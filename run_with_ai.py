@@ -228,7 +228,27 @@ def main():
         traceback.print_exc()
     
     logger.info("\n🎉 모든 작업 완료!")
-    
+
+    # Slack 최종 완료 요약 알림
+    try:
+        slack_webhook = ''
+        config_path = SCRIPT_DIR / 'config.json'
+        if config_path.exists():
+            with open(config_path, 'r', encoding='utf-8') as _f:
+                _cfg = json.load(_f)
+                slack_webhook = _cfg.get('slack_webhook_url', '')
+
+        if slack_webhook:
+            from slack_notifier import SlackNotifier
+            dashboard_url = ''
+            if MainConfig.GITHUB_REPO:
+                owner, repo_name = MainConfig.GITHUB_REPO.split('/', 1)
+                dashboard_url = f"https://{owner}.github.io/{repo_name}/"
+            SlackNotifier(slack_webhook).notify_summary(results, ai_suggestions, dashboard_url)
+            logger.info("📨 Slack 완료 요약 알림 전송")
+    except Exception as e:
+        logger.warning(f"⚠️ Slack 알림 실패: {e}")
+
     return 0
 
 
