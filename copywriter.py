@@ -76,10 +76,10 @@ class PerformanceDataLoader:
 class CopywriterAI:
     def __init__(self, api_key):
         genai.configure(api_key=api_key)
-        # Gemini 2.5 Pro - RPD 1,500회 + TPM 무제한
-        self.model = genai.GenerativeModel('gemini-2.5-pro')
+        # Gemini 2.5 Flash - 안정화 모델 (빠른 응답)
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
         self.performance_data = {}
-        print("✅ 모델: gemini-2.5-pro (RPD: 1,500회, TPM: 무제한)")
+        print("OK Model: gemini-2.5-flash")
     
     def set_performance_data(self, performance_data):
         self.performance_data = performance_data
