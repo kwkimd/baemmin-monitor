@@ -19,19 +19,22 @@ SCRIPT_DIR = Path(__file__).parent.absolute()
 
 
 class Config:
-    GEMINI_API_KEY = 'AIzaSyBu-j8yELkteVbv0GRtnKR9xeT0XCvkgPM'
+    GEMINI_API_KEY = ''  # config.json의 gemini_api_key 에서 로드
     MONITORING_SHEET_ID = ''
     PERFORMANCE_SHEET_ID = '1AISTFsSGHFr9QXVdrX_lLey0oqwa3Eo5umTMaAKAWFQ'
     CONFIG_FILE = SCRIPT_DIR / 'config.json'
     CREDENTIALS_FILE = SCRIPT_DIR / 'credentials.json'
     OUTPUT_DIR = SCRIPT_DIR / 'copywriting_reports'
-    
+
     @classmethod
     def load_config(cls):
         if cls.CONFIG_FILE.exists():
             with open(cls.CONFIG_FILE, 'r', encoding='utf-8') as f:
                 config = json.load(f)
                 cls.MONITORING_SHEET_ID = config.get('spreadsheet_id', '')
+                key = config.get('gemini_api_key', '')
+                if key and key != '여기에_새_API_키_입력':
+                    cls.GEMINI_API_KEY = key
 
 
 class PerformanceDataLoader:
