@@ -50,6 +50,9 @@ class Config:
     # GitHub 설정
     GITHUB_TOKEN = ''
     GITHUB_REPO = ''
+
+    # Slack 설정
+    SLACK_WEBHOOK = ''
     
     PAGE_LOAD_TIMEOUT = 45
     ELEMENT_WAIT_TIMEOUT = 20
@@ -154,6 +157,7 @@ class Config:
                 cls.TARGET_URL = config.get('target_url', cls.TARGET_URL)
                 cls.GITHUB_TOKEN = config.get('github_token', '')
                 cls.GITHUB_REPO = config.get('github_repo', '')
+                cls.SLACK_WEBHOOK = config.get('slack_webhook_url', '')
 
 
 # ============================================================
@@ -975,7 +979,14 @@ class BaeminMonitor:
             self.logger.error(f"❌ 모니터링 오류: {e}")
             self.results['status'] = 'error'
             self.results['errors'].append(str(e))
-            
+            # 오류 즉시 Slack 알림
+            try:
+                if Config.SLACK_WEBHOOK:
+                    from slack_notifier import SlackNotifier
+                    SlackNotifier(Config.SLACK_WEBHOOK).notify_error('모니터링 실행 중', str(e))
+            except Exception:
+                pass
+
         finally:
             self.stop()
         
@@ -1258,6 +1269,18 @@ def main():
     
     print_summary(results, logger)
     save_to_sheets(results, logger)
+
+    # 이상 감지 즉시 Slack 알림 (콘텐츠 미노출/부족)
+    try:
+        if Config.SLACK_WEBHOOK:
+            from slack_notifier import SlackNotifier
+            notifier = SlackNotifier(Config.SLACK_WEBHOOK)
+            alerts = results.get('alerts', [])
+            if alerts:
+                notifier.notify_alerts(alerts)
+                logger.info(f"📨 Slack 이상 감지 알림 전송 ({len(alerts)}건)")
+    except Exception as e:
+        logger.warning(f"⚠️ Slack 알림 실패: {e}")
     
     # HTML 리포트 생성 및 GitHub 업로드 (버전 관리)
     try:
