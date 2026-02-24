@@ -31,6 +31,7 @@ jobs:
           SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
           GH_PAT: ${{ secrets.GH_PAT }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
           python3 -c "
           import json, os
@@ -39,7 +40,8 @@ jobs:
               'target_url': 'https://ceo.baemin.com',
               'github_token': os.environ['GH_PAT'],
               'github_repo': 'kwkimd/baemmin-monitor',
-              'gemini_api_key': os.environ['GEMINI_API_KEY']
+              'gemini_api_key': os.environ['GEMINI_API_KEY'],
+              'slack_webhook_url': os.environ.get('SLACK_WEBHOOK_URL', '')
           }
           with open('config.json', 'w') as f:
               json.dump(config, f, indent=2)
