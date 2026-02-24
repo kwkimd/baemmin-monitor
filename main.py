@@ -7,6 +7,7 @@
 """
 
 import os
+import re
 import json
 import time
 import logging
@@ -583,6 +584,11 @@ class BaeminMonitor:
             pass
         return items
     
+    # 장사노하우 UI 배지 텍스트 패턴 (제목에서 제거)
+    _KNOWHOW_BADGE_RE = re.compile(
+        r'^(오늘\s*신청\s*마감|신청\s*마감(\s*D-\d+)?|마감\s*임박)\s*$'
+    )
+
     def _extract_knowhow(self, config):
         """장사노하우 추출"""
         items = []
@@ -592,11 +598,15 @@ class BaeminMonitor:
                 try:
                     text = item.text.strip()
                     href = item.get_attribute('href') or ''
-                    
+
                     if text and len(text) > 3:
-                        lines = text.split('\n')
-                        title = lines[0] if lines else text
-                        
+                        # 배지 텍스트("오늘 신청 마감", "신청 마감 D-1" 등) 제거
+                        clean_lines = [
+                            l.strip() for l in text.split('\n')
+                            if l.strip() and not self._KNOWHOW_BADGE_RE.match(l.strip())
+                        ]
+                        title = clean_lines[0] if clean_lines else text.split('\n')[0]
+
                         items.append({
                             'title': title[:200],
                             'link': href,
