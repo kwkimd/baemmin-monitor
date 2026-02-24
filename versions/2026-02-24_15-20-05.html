@@ -840,6 +840,15 @@
                 </div>
                 <div class="header-actions">
                     
+    <div class="version-selector">
+        <label for="version-select">📂 버전 선택:</label>
+        <select id="version-select">
+            <option value="2026-02-24_15-20-05" selected>2026:02:24 15:20:05</option><option value="2026-02-24_14-56-42" >2026:02:24 14:56:42</option><option value="2026-02-24_14-46-41" >2026:02:24 14:46:41</option><option value="2026-02-24_14-38-26" >2026:02:24 14:38:26</option><option value="2026-02-24_14-12-15" >2026:02:24 14:12:15</option><option value="2026-02-24_11-28-49" >2026:02:24 11:28:49</option><option value="2026-02-24_11-17-11" >2026:02:24 11:17:11</option><option value="2026-02-24_10-43-18" >2026:02:24 10:43:18</option><option value="2026-02-24_09-52-22" >2026:02:24 09:52:22</option><option value="2026-02-23_20-10-30" >2026:02:23 20:10:30</option><option value="2026-02-23_19-40-42" >2026:02:23 19:40:42</option><option value="2026-02-23_19-28-50" >2026:02:23 19:28:50</option><option value="2026-02-23_19-28-24" >2026:02:23 19:28:24</option><option value="2026-02-23_19-27-55" >2026:02:23 19:27:55</option><option value="2026-02-23_16-13-19" >2026:02:23 16:13:19</option><option value="2026-02-23_13-53-17" >2026:02:23 13:53:17</option><option value="2026-02-19_12-49-47" >2026:02:19 12:49:47</option><option value="2026-02-19_12-42-37" >2026:02:19 12:42:37</option><option value="2026-02-19_12-33-54" >2026:02:19 12:33:54</option><option value="2026-02-19_12-24-36" >2026:02:19 12:24:36</option><option value="2026-02-19_12-17-24" >2026:02:19 12:17:24</option><option value="2026-02-19_12-14-53" >2026:02:19 12:14:53</option><option value="2026-02-19_12-12-11" >2026:02:19 12:12:11</option><option value="2026-02-19_12-02-18" >2026:02:19 12:02:18</option><option value="2026-02-19_12-00-04" >2026:02:19 12:00:04</option><option value="2026-02-19_11-57-45" >2026:02:19 11:57:45</option><option value="2026-02-19_11-56-14" >2026:02:19 11:56:14</option><option value="2026-02-19_11-55-24" >2026:02:19 11:55:24</option><option value="2026-02-19_11-26-24" >2026:02:19 11:26:24</option><option value="2026-02-19_10-43-01" >2026:02:19 10:43:01</option>
+        </select>
+        <button class="version-go-btn" onclick="changeVersion(document.getElementById('version-select').value)">📂 이동</button>
+        <button class="screenshot-btn" onclick="showScreenshot(document.getElementById('version-select').value)">📸 스크린샷</button>
+    </div>
+    
                     <div class="action-buttons">
                         <button class="run-monitoring-btn" id="run-btn" onclick="triggerMonitoring()">🔄 모니터링 실행</button>
                         <button class="settings-btn" onclick="openSettings()" title="GitHub 토큰 설정">⚙️</button>
@@ -890,6 +899,49 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.2</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">사장님께 드리는 역대급 할인 혜택!</div>
+                                            <div class="ai-banner-headline">상회대축제! 최대 87% 할인</div>
+                                        </div>
+                                        <div class="ai-reason">하단 헤드라인은 이벤트명과 가장 큰 할인율을 명확히 제시하여 즉각적인 시선을 사로잡습니다 (19자). 상단 문구는 '사장님'을 직접 언급하며 '역대급'이라는 표현으로 혜택의 특별함을 강조하여 기대감을 높입니다 (24자).</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">배민상회 대축제, 놓칠 수 없는 기회!</div>
+                                            <div class="ai-banner-headline">최대 87% + 10% 쿠폰 2장!</div>
+                                        </div>
+                                        <div class="ai-reason">하단 헤드라인에 두 가지 핵심 숫자 혜택(할인율 + 쿠폰)을 모두 넣어 가격 민감도가 높은 사장님들에게 직관적인 매력을 어필합니다 (19자). 상단 문구는 이벤트명을 다시 한번 언급하며 '놓칠 수 없는 기회'로 긴급성과 중요성을 강조합니다 (25자).</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">최대 87% 할인과 10% 쿠폰 2장 득템!</div>
+                                            <div class="ai-banner-headline">상회대축제 오픈! 파격 혜택</div>
+                                        </div>
+                                        <div class="ai-reason">하단 헤드라인은 이벤트 오픈 소식과 함께 '파격 혜택'으로 기대감을 조성하며, 구체적인 숫자 대신 전반적인 큰 이득을 암시하여 간결함을 유지합니다 (19자). 상단 문구에서 구체적인 할인율과 쿠폰 정보를 명시하여 전체 혜택을 명확히 전달합니다 (25자).</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                     <div class="item">
@@ -898,6 +950,49 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.2</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">배민상회 쌀 사는 날! 품질 UP, 가격은 DOWN!</div>
+                                            <div class="ai-banner-headline">고품질 쌀, 특별가로!</div>
+                                        </div>
+                                        <div class="ai-reason">상단 문구에 핵심 혜택(품질 UP, 가격 DOWN)을 명시하여 즉각적인 가치 전달력을 높였습니다. 하단 문구는 '고품질'과 '특별가'라는 사장님들의 주요 관심사를 간결하게 압축하여 가독성을 극대화했습니다. (상단: 26자, 하단: 12자)</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">배민상회 사장님만을 위한 쌀 특가 찬스!</div>
+                                            <div class="ai-banner-headline">최고급 쌀, 파격 할인!</div>
+                                        </div>
+                                        <div class="ai-reason">상단 문구에서 '사장님만을 위한'이라는 표현으로 타겟팅을 명확히 하고, '특가 찬스'로 기회를 강조했습니다. 하단 문구는 '최고급'이라는 품질과 '파격 할인'이라는 강력한 가격 혜택을 결합하여 매력도를 높였습니다. (상단: 26자, 하단: 12자)</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">배민상회 쌀 사는 날! 사장님께 드리는 특별 혜택</div>
+                                            <div class="ai-banner-headline">엄선 쌀, 최저가 기회!</div>
+                                        </div>
+                                        <div class="ai-reason">상단 문구는 기존 '쌀 사는 날'을 유지하면서 '특별 혜택'으로 기대감을 높였습니다. 하단 문구는 '엄선'으로 품질을, '최저가 기회'로 가격 메리트와 함께 구매 행동을 유도하는 뉘앙스를 담았습니다. (상단: 29자, 하단: 11자)</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                     <div class="item">
@@ -906,6 +1001,49 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">업종변경, 고민 말고 시작하세요!</div>
+                                            <div class="ai-banner-headline">같은 노력, 더 큰 매출 UP</div>
+                                        </div>
+                                        <div class="ai-reason">상단 문구는 '업종변경'에 대한 막연한 불안감을 해소하고 행동을 독려합니다. 하단 문구는 기존 문구의 핵심 메시지(동일 노동으로 매출 증대)를 간결하고 긍정적인 표현으로 압축하여, 사장님들이 쉽게 공감하고 기대감을 가질 수 있도록 유도합니다. 짧지만 명확한 베네핏을 제시합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">사장님, 지금이 업종 전환 기회!</div>
+                                            <div class="ai-banner-headline">배민이 드리는 수익 혁명</div>
+                                        </div>
+                                        <div class="ai-reason">상단 문구는 현재 시점이 '업종 전환'의 적기임을 강조하여 사장님들의 이목을 집중시키고 기회 심리를 자극합니다. 하단 문구는 '수익 혁명'이라는 강력한 단어를 사용하여 배민을 통한 변화의 규모를 강조하고, 직접적으로 배민이 제공하는 가치를 명시하여 플랫폼의 역할과 매력을 부각합니다. 간결하면서도 임팩트가 강합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">업종변경, 배민이 함께합니다!</div>
+                                            <div class="ai-banner-headline">혜택받고 지금 바로 성공!</div>
+                                        </div>
+                                        <div class="ai-reason">상단 문구는 '업종변경'이라는 사장님의 새로운 도전에 배민이 든든한 파트너로서 동행함을 강조하여 신뢰감을 줍니다. 하단 문구는 '혜택'과 '성공'이라는 사장님들의 가장 큰 관심사를 직접적으로 연결하고, '지금 바로'라는 즉각적인 행동 유발 문구를 통해 빠르고 쉽게 성과를 얻을 수 있다는 기대를 심어줍니다. 명확한 보상과 즉시성을 강조합니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                     <div class="item">
@@ -914,6 +1052,49 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">배민파트너어워즈, 무엇이 궁금하세요?</div>
+                                            <div class="ai-banner-headline">수상 기준, 성장 전략 확인!</div>
+                                        </div>
+                                        <div class="ai-reason">기존 상단 문구의 호기심 유발을 유지하면서, 하단 문구는 어워즈에서 얻을 수 있는 핵심 정보(수상 기준, 성장 전략)를 명확히 제시하고 '확인!'이라는 직접적인 행동 유도 메시지를 통해 간결하게 압축하여 글자 수 제한을 준수했습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.2</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">배민파트너어워즈, 성공 비결을 찾으세요?</div>
+                                            <div class="ai-banner-headline">성장 노하우, 수상 기준 확인!</div>
+                                        </div>
+                                        <div class="ai-reason">상단에서 어워즈를 사장님의 '성공 비결'과 연결 지어 더 큰 궁금증과 참여 동기를 부여합니다. 하단에는 사장님들이 실질적으로 얻을 수 있는 가치(성장 노하우)와 기본 정보(수상 기준)를 함께 제시하며 행동을 유도합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 9.5</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">사장님 성장을 위한 배민파트너어워즈!</div>
+                                            <div class="ai-banner-headline">성공 전략과 수상 비법 확인!</div>
+                                        </div>
+                                        <div class="ai-reason">상단에서 어워즈가 사장님의 성장에 직결되는 중요한 기회임을 직접적으로 강조하여 가치를 부각시켰습니다. 하단에서는 사장님들이 가장 알고 싶어 할 '성공 전략'과 '수상 비법'을 명시하고 즉각적인 확인을 유도하여 클릭 전환율을 높이고자 했습니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                     <div class="item">
@@ -922,6 +1103,49 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">사장님, 신차로 사업비용 줄이고 절세하세요!</div>
+                                            <div class="ai-banner-headline">카니발, 절세/환급 월 34만원대</div>
+                                        </div>
+                                        <div class="ai-reason">상단 문구는 '사업비용 절감'과 '절세'라는 구체적인 혜택을 직접적으로 언급하여 사장님들의 관심사를 자극합니다. 하단 문구는 '절세/환급'으로 핵심 세금 혜택을 압축하고, '카니발' 모델과 '월 34만원대'라는 매력적인 가격 정보를 명확하게 전달하여 간결함과 정보 전달력을 동시에 확보했습니다. (상단: 27자, 하단: 20자)</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.5</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">사장님, 신차로 사업 경비 줄이고 돈 버세요!</div>
+                                            <div class="ai-banner-headline">카니발 절세+환급! 월 34만대</div>
+                                        </div>
+                                        <div class="ai-reason">상단 문구는 '돈 버세요!'라는 강한 동기 부여 문구를 사용하여 광고의 주목도를 높였습니다. 하단 문구는 '절세+환급!'이라는 간결하면서도 효과적인 표현으로 세금 혜택을 강조하고, '월 34만대'로 가격 정보를 압축하여 더욱 빠르게 핵심을 전달합니다. 짧고 임팩트 있는 문구로 빠른 판단을 유도합니다. (상단: 28자, 하단: 19자)</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">사장님, 지금 신차로 큰돈 아낄 기회!</div>
+                                            <div class="ai-banner-headline">카니발, 세금/환급 월 34만원부터</div>
+                                        </div>
+                                        <div class="ai-reason">상단 문구는 '큰돈 아낄 기회'라는 직접적인 금전적 이득을 강조하여 즉각적인 관심을 유도합니다. 하단 문구는 '세금/환급'이라는 표현으로 비용처리 및 부가세 환급 혜택을 간결하게 나타내며, '월 34만원부터'라는 구체적인 시작 가격을 제시하여 사장님들이 느끼는 부담을 낮추고 문의를 유도합니다. (상단: 26자, 하단: 20자)</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                     <div class="item">
@@ -990,6 +1214,40 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">사장님! 쌀 특가 이득!</div>
+                                        <div class="ai-reason">타겟 고객인 '사장님!'을 직접 호명하여 주목도를 높이고, '특가'를 통해 얻는 궁극적인 이점인 '이득'을 명확히 제시합니다. 간결하면서도 사장님의 재정적 혜택에 초점을 맞춰 설득력을 높였습니다. (13자)</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.5</span>
+                                        </div>
+                                        <div class="ai-title">쌀 특가! 사장님 마진UP!</div>
+                                        <div class="ai-reason">사업주에게 가장 중요한 지표 중 하나인 '마진'을 직접 언급하여, 특가 행사가 매출 증대와 직결됨을 강조합니다. 'UP!'이라는 직관적인 표현으로 즉각적인 혜택을 시각적으로도 전달합니다. (14자)</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">배민상회 쌀! 놓치면 손해!</div>
+                                        <div class="ai-reason">제품명과 함께 '놓치면 손해!'라는 문구로 긴급성과 위기감을 조성하여 행동을 유도합니다. '특가'라는 단어가 없어도 '손해'라는 역설적인 표현을 통해 이번 기회를 놓치지 말아야 할 강력한 이유를 부여합니다. (15자)</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                 </div>
@@ -1266,6 +1524,49 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">배민상회 쌀 사는 날!</div>
+                                            <div class="ai-banner-headline">고품질 쌀 특가! 지금 확인</div>
+                                        </div>
+                                        <div class="ai-reason">기존 상단 문구의 명확성을 유지하며, 하단 문구를 '고품질 쌀 특가!'로 핵심 혜택을 강조하고 '지금 확인'으로 명확한 행동 유발 메시지를 추가했습니다. 18자로 문자 수 제한을 준수하면서도 혜택과 행동을 동시에 전달하여 효율성을 높였습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">배민상회 쌀데이, 득템 기회!</div>
+                                            <div class="ai-banner-headline">쌀도 역시 배민상회 특가</div>
+                                        </div>
+                                        <div class="ai-reason">상단 문구를 '쌀데이'로 이벤트성을 강화하고 '득템 기회'로 기대감을 높였습니다. 하단 문구는 '쌀도 역시'를 활용하여 배민상회가 쌀 구매에도 신뢰할 수 있는 플랫폼임을 강조하고, '특가'로 핵심 혜택을 제시하여 사장님들의 브랜드 충성도를 높이면서 특가 구매를 유도합니다. (19자)</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 9.2</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">놓치지 마세요! 쌀 특가 DAY</div>
+                                            <div class="ai-banner-headline">매일 쓰는 쌀, 알뜰하게!</div>
+                                        </div>
+                                        <div class="ai-reason">상단 문구에 '놓치지 마세요!'를 추가하여 긴급성을 부여하고 '특가 DAY'로 이벤트와 혜택을 결합했습니다. 하단 문구는 '매일 쓰는 쌀'로 사장님들의 일상적인 필요를 직접 언급하고, '알뜰하게!'로 비용 절감이라는 실질적인 가치를 강조하여 구매 동기를 강력하게 부여합니다. (18자)</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                     <div class="item">
@@ -1274,6 +1575,49 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">배민상회 2월 대축제 오픈!</div>
+                                            <div class="ai-banner-headline">최대 87% 할인, 즉시 득템!</div>
+                                        </div>
+                                        <div class="ai-reason">상단은 이벤트 개시를 명확하고 간결하게 알립니다. 하단은 파격적인 할인율과 함께 '즉시 득템'이라는 적극적인 문구로 사장님들의 즉각적인 구매 욕구를 자극하며, '쿠폰혜택'을 '즉시 득템'에 포함시켜 액션감을 높였습니다. (상단 17자, 하단 19자)</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">배민상회 2월 대축제 진행 중</div>
+                                            <div class="ai-banner-headline">87% 할인 + 쿠폰 추가 혜택</div>
+                                        </div>
+                                        <div class="ai-reason">상단은 이벤트 진행 상황을 간결하게 전달하여 현재 진행 중임을 강조합니다. 하단은 가장 큰 혜택인 할인율과 함께 '쿠폰 추가 혜택'을 명확히 분리하여 제시함으로써, 사장님들이 받을 수 있는 총 혜택을 직관적으로 이해하고 매력을 느끼도록 합니다. (상단 17자, 하단 19자)</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">사장님, 2월 상회대축제 놓치지 마세요!</div>
+                                            <div class="ai-banner-headline">최대 87% 할인 + 역대급 쿠폰!</div>
+                                        </div>
+                                        <div class="ai-reason">상단은 '사장님'이라는 직접적인 호칭과 '놓치지 마세요!'라는 문구로 친근함과 시급성을 동시에 전달하여 참여를 유도합니다. 하단은 높은 할인율과 더불어 '역대급 쿠폰'이라는 표현으로 쿠폰의 가치를 극대화하여, 단순한 혜택을 넘어 특별한 기회임을 강조합니다. (상단 23자, 하단 20자)</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                     <div class="item">
@@ -1282,6 +1626,49 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">1만원으로 동네 고객에게 홍보하세요!</div>
+                                            <div class="ai-banner-headline">지금 바로 주문 up!</div>
+                                        </div>
+                                        <div class="ai-reason">마이영역 배너의 핵심 기능인 '동네 고객 홍보'를 명확히 제시하고, 사업주가 가장 원하는 '주문 증가'를 간결하고 직관적인 'up!'으로 표현하여 즉각적인 행동 유도를 목표했습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">단돈 1만원, 새로운 단골을 만드세요!</div>
+                                            <div class="ai-banner-headline">우리 가게 매출 성장 기회!</div>
+                                        </div>
+                                        <div class="ai-reason">저렴한 비용을 강조하며, 단기적인 주문뿐 아니라 장기적인 '새로운 단골 확보'와 '매출 성장'이라는 사업주의 궁극적인 목표에 초점을 맞춰 제안합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.7</span>
+                                        </div>
+                                        <div class="ai-banner-preview">
+                                            <div class="ai-banner-secondary">1만원 투자로 우리 동네 단골 확보!</div>
+                                            <div class="ai-banner-headline">스마트한 우리 가게 홍보!</div>
+                                        </div>
+                                        <div class="ai-reason">'1만원'을 단순 비용이 아닌 '투자'로 인식하게 하여 가치를 높이고, '우리 동네 단골 확보'라는 구체적인 이점을 제시합니다. '스마트한 홍보'는 효율적이고 효과적인 마케팅 도구임을 어필합니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                 </div>
@@ -1300,6 +1687,40 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.2</span>
+                                        </div>
+                                        <div class="ai-title">2026 트렌드로 매출UP!</div>
+                                        <div class="ai-reason">사장님들의 가장 큰 관심사인 '매출 상승'을 직접적으로 언급하며, 'UP!'으로 간결하고 강력하게 메시지를 전달합니다. 짧고 직관적이어서 시선을 사로잡기 좋습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-title">2026 외식 필승 트렌드</div>
+                                        <div class="ai-reason">'필승'이라는 단어를 통해 단순 정보가 아닌, 가게 운영에 '반드시 필요한 이기는 전략'이라는 인식을 심어줍니다. 사장님들의 경쟁 우위 확보 욕구를 자극합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">2026 외식 트렌드: 내 가게 성장</div>
+                                        <div class="ai-reason">'내 가게 성장'이라는 표현으로 개인화된 가치를 제시하여 사장님의 공감을 얻고, 트렌드가 본인의 비즈니스에 직접적인 이득이 될 것임을 기대하게 만듭니다. 감성적인 연결을 시도합니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                 </div>
@@ -1350,7 +1771,7 @@
 
     <script>
         // ── 설정 ──────────────────────────────────────────────
-        const GITHUB_REPO = '';
+        const GITHUB_REPO = 'kwkimd/baemmin-monitor';
         const WORKFLOW_FILE = 'monitor.yml';
 
         // ── 토스트 알림 ───────────────────────────────────────
