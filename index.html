@@ -204,6 +204,200 @@
             font-size: 14px;
         }
 
+        /* 헤더 액션 버튼 영역 */
+        .header-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .run-monitoring-btn {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: #1a4a2e;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
+        }
+
+        .run-monitoring-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(67, 233, 123, 0.5);
+        }
+
+        .run-monitoring-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .run-monitoring-btn.running {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #7a3b1e;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .settings-btn {
+            background: rgba(255,255,255,0.2);
+            color: #555;
+            border: 2px solid #ddd;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            white-space: nowrap;
+        }
+
+        .settings-btn:hover {
+            background: rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+            transform: rotate(30deg);
+        }
+
+        /* 설정 모달 */
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9998;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-modal.active {
+            display: flex;
+        }
+
+        .settings-modal-box {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            width: 420px;
+            max-width: 92vw;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .settings-modal-box h3 {
+            font-size: 18px;
+            margin-bottom: 6px;
+            color: #333;
+        }
+
+        .settings-modal-box .settings-note {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .settings-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .settings-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: monospace;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .settings-input:focus {
+            border-color: #667eea;
+        }
+
+        .settings-btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+
+        .settings-save-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .settings-save-btn:hover {
+            background: #5567d0;
+        }
+
+        .settings-cancel-btn {
+            background: #f0f0f0;
+            color: #555;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .settings-cancel-btn:hover {
+            background: #e0e0e0;
+        }
+
+        /* 토스트 알림 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #333;
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            z-index: 10000;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s;
+            opacity: 0;
+            max-width: 90vw;
+            text-align: center;
+            white-space: pre-line;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .toast.success { background: #2d7a4f; }
+        .toast.error { background: #c0392b; }
+        .toast.info { background: #2563eb; }
+
         /* 🚨 알림 섹션 */
         .alert-section {
             background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
@@ -617,53 +811,31 @@
             <div class="header-top">
                 <div>
                     <h1>🍽️ 배민외식업광장 모니터링 대시보드</h1>
-                    <p class="update-time">📅 마지막 업데이트: 2026-02-24 14:38:26 (KST)</p>
+                    <p class="update-time">📅 마지막 업데이트: 2026-02-24 14:46:41 (KST)</p>
                     <span class="status-badge status-success">
                         ✅ 정상 수집 완료
                     </span>
                 </div>
-                
+                <div class="header-actions">
+                    
     <div class="version-selector">
         <label for="version-select">📂 버전 선택:</label>
         <select id="version-select">
-            <option value="2026-02-24_14-38-26" selected>2026:02:24 14:38:26</option><option value="2026-02-24_14-12-15" >2026:02:24 14:12:15</option><option value="2026-02-24_11-28-49" >2026:02:24 11:28:49</option><option value="2026-02-24_11-17-11" >2026:02:24 11:17:11</option><option value="2026-02-24_10-43-18" >2026:02:24 10:43:18</option><option value="2026-02-24_09-52-22" >2026:02:24 09:52:22</option><option value="2026-02-23_20-10-30" >2026:02:23 20:10:30</option><option value="2026-02-23_19-40-42" >2026:02:23 19:40:42</option><option value="2026-02-23_19-28-50" >2026:02:23 19:28:50</option><option value="2026-02-23_19-28-24" >2026:02:23 19:28:24</option><option value="2026-02-23_19-27-55" >2026:02:23 19:27:55</option><option value="2026-02-23_16-13-19" >2026:02:23 16:13:19</option><option value="2026-02-23_13-53-17" >2026:02:23 13:53:17</option><option value="2026-02-19_12-49-47" >2026:02:19 12:49:47</option><option value="2026-02-19_12-42-37" >2026:02:19 12:42:37</option><option value="2026-02-19_12-33-54" >2026:02:19 12:33:54</option><option value="2026-02-19_12-24-36" >2026:02:19 12:24:36</option><option value="2026-02-19_12-17-24" >2026:02:19 12:17:24</option><option value="2026-02-19_12-14-53" >2026:02:19 12:14:53</option><option value="2026-02-19_12-12-11" >2026:02:19 12:12:11</option><option value="2026-02-19_12-02-18" >2026:02:19 12:02:18</option><option value="2026-02-19_12-00-04" >2026:02:19 12:00:04</option><option value="2026-02-19_11-57-45" >2026:02:19 11:57:45</option><option value="2026-02-19_11-56-14" >2026:02:19 11:56:14</option><option value="2026-02-19_11-55-24" >2026:02:19 11:55:24</option><option value="2026-02-19_11-26-24" >2026:02:19 11:26:24</option><option value="2026-02-19_10-43-01" >2026:02:19 10:43:01</option><option value="2026-02-19_10-08-22" >2026:02:19 10:08:22</option><option value="2026-02-19_10-00-05" >2026:02:19 10:00:05</option><option value="2026-02-13_10-00-05" >2026:02:13 10:00:05</option>
+            <option value="2026-02-24_14-46-41" selected>2026:02:24 14:46:41</option><option value="2026-02-24_14-38-26" >2026:02:24 14:38:26</option><option value="2026-02-24_14-12-15" >2026:02:24 14:12:15</option><option value="2026-02-24_11-28-49" >2026:02:24 11:28:49</option><option value="2026-02-24_11-17-11" >2026:02:24 11:17:11</option><option value="2026-02-24_10-43-18" >2026:02:24 10:43:18</option><option value="2026-02-24_09-52-22" >2026:02:24 09:52:22</option><option value="2026-02-23_20-10-30" >2026:02:23 20:10:30</option><option value="2026-02-23_19-40-42" >2026:02:23 19:40:42</option><option value="2026-02-23_19-28-50" >2026:02:23 19:28:50</option><option value="2026-02-23_19-28-24" >2026:02:23 19:28:24</option><option value="2026-02-23_19-27-55" >2026:02:23 19:27:55</option><option value="2026-02-23_16-13-19" >2026:02:23 16:13:19</option><option value="2026-02-23_13-53-17" >2026:02:23 13:53:17</option><option value="2026-02-19_12-49-47" >2026:02:19 12:49:47</option><option value="2026-02-19_12-42-37" >2026:02:19 12:42:37</option><option value="2026-02-19_12-33-54" >2026:02:19 12:33:54</option><option value="2026-02-19_12-24-36" >2026:02:19 12:24:36</option><option value="2026-02-19_12-17-24" >2026:02:19 12:17:24</option><option value="2026-02-19_12-14-53" >2026:02:19 12:14:53</option><option value="2026-02-19_12-12-11" >2026:02:19 12:12:11</option><option value="2026-02-19_12-02-18" >2026:02:19 12:02:18</option><option value="2026-02-19_12-00-04" >2026:02:19 12:00:04</option><option value="2026-02-19_11-57-45" >2026:02:19 11:57:45</option><option value="2026-02-19_11-56-14" >2026:02:19 11:56:14</option><option value="2026-02-19_11-55-24" >2026:02:19 11:55:24</option><option value="2026-02-19_11-26-24" >2026:02:19 11:26:24</option><option value="2026-02-19_10-43-01" >2026:02:19 10:43:01</option><option value="2026-02-19_10-08-22" >2026:02:19 10:08:22</option><option value="2026-02-19_10-00-05" >2026:02:19 10:00:05</option>
         </select>
         <button class="version-go-btn" onclick="changeVersion(document.getElementById('version-select').value)">📂 이동</button>
         <button class="screenshot-btn" onclick="showScreenshot(document.getElementById('version-select').value)">📸 스크린샷</button>
     </div>
     
+                    <div class="action-buttons">
+                        <button class="run-monitoring-btn" id="run-btn" onclick="triggerMonitoring()">🔄 모니터링 실행</button>
+                        <button class="settings-btn" onclick="openSettings()" title="GitHub 토큰 설정">⚙️</button>
+                    </div>
+                </div>
             </div>
         </div>
         
         <!-- 🚨 영역 노출 알림 -->
-        
-        <div class="alert-section">
-            <div class="alert-header">
-                <h3>🚨 영역 노출 알림 (1개)</h3>
-            </div>
-            <div class="alert-table-wrapper">
-                <table class="alert-table">
-                    <thead>
-                        <tr>
-                            <th>상태</th>
-                            <th>영역</th>
-                            <th>기대</th>
-                            <th>실제</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        
-            <tr>
-                <td><span class="alert-badge alert-warning">부족</span></td>
-                <td><strong>마이영역배너</strong></td>
-                <td>기대: 3개</td>
-                <td>실제: 2개</td>
-            </tr>
-            
-                    </tbody>
-                </table>
-            </div>
-        </div>
         
         
         <!-- 확인 필요 항목 -->
@@ -672,7 +844,7 @@
         <!-- 통계 -->
         <div class="stats">
             <div class="stat-card">
-                <div class="number">40</div>
+                <div class="number">41</div>
                 <div class="label">총 수집 항목</div>
             </div>
             <div class="stat-card">
@@ -680,7 +852,7 @@
                 <div class="label">모니터링 영역</div>
             </div>
             <div class="stat-card">
-                <div class="number">40</div>
+                <div class="number">41</div>
                 <div class="label">정상 링크</div>
             </div>
             <div class="stat-card ">
@@ -705,40 +877,6 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
-                                <div class="ai-suggestions-container">
-                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
-                                    <div class="ai-content" style="display:none;">
-                                        
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 1</span>
-                                            <span class="ai-score">★ 9.2</span>
-                                        </div>
-                                        <div class="ai-title">{'main_copy_line1': '배민상회 대축제 오픈!', 'main_copy_line2': '최대 87% 할인 시작'}</div>
-                                        <div class="ai-reason">이 제안은 이벤트명('배민상회 대축제')과 가장 강력한 혜택('최대 87% 할인')을 메인 카피에 명확히 배치하여 시선을 즉시 사로잡습니다. '오픈!', '시작'과 같은 동적인 표현으로 주목도를 높였고, 서브 카피에서 추가 쿠폰 혜택과 명확한 행동 유도('바로 받기!')를 제공하여 사장님들이 놓치지 않도록 유도합니다. 모든 문자 수 제한을 준수합니다.</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 2</span>
-                                            <span class="ai-score">★ 9.0</span>
-                                        </div>
-                                        <div class="ai-title">{'main_copy_line1': '사장님, 폭풍 할인 찬스!', 'main_copy_line2': '상회대축제 87% OFF'}</div>
-                                        <div class="ai-reason">이 제안은 '사장님'을 직접 언급하며 강력한 이득의 기회('폭풍 할인 찬스!')임을 강조하여 타겟 고객의 공감과 흥미를 유발합니다. 메인 카피에 이벤트명('상회대축제')과 핵심 할인율을 간결하게 ('87% OFF') 제시하여 전달력을 높였으며, 서브 카피로 추가 쿠폰 혜택을 명료하게 전달합니다. 모든 문자 수 제한을 준수합니다.</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 3</span>
-                                            <span class="ai-score">★ 8.8</span>
-                                        </div>
-                                        <div class="ai-title">{'main_copy_line1': '배민상회 대축제!', 'main_copy_line2': '최대 87% 할인 혜택'}</div>
-                                        <div class="ai-reason">이 제안은 메인 카피에 이벤트명('배민상회 대축제!')과 핵심적인 '최대 87% 할인 혜택'을 간결하게 배치하여 명확성을 높였습니다. 서브 카피에서는 추가 쿠폰 혜택을 상세히 언급하며 '꼭 챙기세요!'라는 친근하면서도 권유하는 어조로 사장님들의 참여를 독려합니다. 모든 문자 수 제한을 준수합니다.</div>
-                                    </div>
-                                    
-                                    </div>
-                                </div>
-                                
                     </div>
                     
                     <div class="item">
@@ -747,40 +885,6 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
-                                <div class="ai-suggestions-container">
-                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
-                                    <div class="ai-content" style="display:none;">
-                                        
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 1</span>
-                                            <span class="ai-score">★ 9.0</span>
-                                        </div>
-                                        <div class="ai-title">{'main': ['배민상회 쌀 특가!', '엄선 쌀, 지금 바로!'], 'sub': '고품질 쌀, 특별한 가격에 만나보세요!'}</div>
-                                        <div class="ai-reason">직관적으로 '쌀 특가'임을 알리고, '엄선'과 '지금 바로'로 품질과 즉시성을 강조했습니다. 서브카피는 상품의 핵심 강점(고품질, 특별 가격)을 명확히 전달하여 행동을 유도합니다.</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 2</span>
-                                            <span class="ai-score">★ 9.2</span>
-                                        </div>
-                                        <div class="ai-title">{'main': ['사장님, 쌀은 여기서!', '프리미엄 쌀, 특가 찬스!'], 'sub': '엄선된 고품질 쌀, 파격 할인가로!'}</div>
-                                        <div class="ai-reason">'사장님'이라는 호칭으로 대상에게 친근하게 다가가고, '프리미엄 쌀'로 품질을 부각했습니다. '특가 찬스'와 '파격 할인가'로 구매 혜택을 강조하여 잠재 고객의 이목을 끕니다.</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 3</span>
-                                            <span class="ai-score">★ 8.8</span>
-                                        </div>
-                                        <div class="ai-title">{'main': ['놓치면 후회!', '배민상회 쌀 특가'], 'sub': '엄선된 고품질 쌀, 최저가 도전!'}</div>
-                                        <div class="ai-reason">'놓치면 후회'로 긴급성과 흥미를 유발하고, '쌀 특가'로 핵심 내용을 전달합니다. 서브카피는 '최저가 도전'으로 가격 경쟁력을 강조하여 구매 욕구를 자극합니다.</div>
-                                    </div>
-                                    
-                                    </div>
-                                </div>
-                                
                     </div>
                     
                     <div class="item">
@@ -789,40 +893,6 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
-                                <div class="ai-suggestions-container">
-                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
-                                    <div class="ai-content" style="display:none;">
-                                        
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 1</span>
-                                            <span class="ai-score">★ 9.2</span>
-                                        </div>
-                                        <div class="ai-title">{'main_copy': ['새 출발 대환영!', '적은 노력, 큰 매출!'], 'sub_copy': '특별 지원 혜택, 지금 바로 신청하세요!'}</div>
-                                        <div class="ai-reason">1. **포괄적 환영:** '업종변경' 대신 '새 출발'로 시작하여 신규 창업자와 업종 변경 희망자 모두에게 열린 메시지를 전달합니다. 2. **명확한 핵심 혜택:** '적은 노력, 큰 매출!'은 기존의 '똑같은 노동으로 나 혼자만 매출 UP'을 훨씬 간결하고 강력하게 요약하여 직관적인 이점을 강조합니다. 3. **직접적 CTA:** 서브 카피에서 '특별 지원 혜택'과 '지금 바로 신청'을 명확히 제시하여 행동을 유도합니다.</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 2</span>
-                                            <span class="ai-score">★ 9.0</span>
-                                        </div>
-                                        <div class="ai-title">{'main_copy': ['내 가게만 특별히', '매출 UP! 성공 비법!'], 'sub_copy': '창업/업종변경 지원, 지금 확인!'}</div>
-                                        <div class="ai-reason">1. **독점성 강조:** '내 가게만 특별히'는 기존의 '나 혼자만' 메시지를 부각시키면서, 사장님들이 특별한 대우와 이점을 받을 수 있다는 인상을 줍니다. 2. **궁금증 유발:** '성공 비법'이라는 표현으로 단순히 매출 증가를 넘어선 비밀스러운 노하우가 있음을 암시하며 흥미를 유발합니다. 3. **간결한 정보 제공:** 서브 카피에서 '창업/업종변경 지원'의 핵심 내용을 한 번 더 언급하고, '지금 확인!'으로 명료하게 다음 단계를 제시합니다.</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 3</span>
-                                            <span class="ai-score">★ 8.8</span>
-                                        </div>
-                                        <div class="ai-title">{'main_copy': ['창업/변경 고민 끝!', '수익 UP, 이젠 쉽게!'], 'sub_copy': '지원 혜택 지금 바로 받고 시작!'}</div>
-                                        <div class="ai-reason">1. **문제 해결 제시:** '고민 끝!'이라는 문구로 잠재 사장님들의 어려움을 공감하고, 배민이 그 해답을 제공할 수 있음을 강력하게 어필합니다. 2. **쉬운 성장 강조:** '수익 UP, 이젠 쉽게!'는 '똑같은 노동'을 넘어 '쉽게' 수익을 올릴 수 있다는 점을 강조하여 진입 장벽을 낮춥니다. '매출' 대신 '수익'을 사용하여 더 직접적인 이익을 강조합니다. 3. **즉각적 행동 촉구:** 서브 카피는 혜택을 즉시 받고 시작할 수 있다는 점을 강조하여 망설임을 줄이고 빠른 신청을 유도합니다.</div>
-                                    </div>
-                                    
-                                    </div>
-                                </div>
-                                
                     </div>
                     
                     <div class="item">
@@ -831,40 +901,6 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
-                                <div class="ai-suggestions-container">
-                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
-                                    <div class="ai-content" style="display:none;">
-                                        
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 1</span>
-                                            <span class="ai-score">★ 9.0</span>
-                                        </div>
-                                        <div class="ai-title">{'main_copy': '빛나는 사장님,\n성공 비결은?', 'sub_copy': '수상 비결과 성장 전략, 지금 확인!'}</div>
-                                        <div class="ai-reason">사장님의 성공과 성장에 대한 열망을 자극하는 문구로 시선을 끌고, 어워즈가 제공할 핵심 가치(수상 비결, 성장 전략)를 간결하게 제시하여 클릭을 유도합니다. 문자 수 제한을 준수합니다.</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 2</span>
-                                            <span class="ai-score">★ 8.8</span>
-                                        </div>
-                                        <div class="ai-title">{'main_copy': '배민어워즈,\n당신의 기회!', 'sub_copy': '수상 기준부터 성장 노하우까지!'}</div>
-                                        <div class="ai-reason">어워즈를 사장님 개인의 직접적인 기회로 연결하여 관심을 높이고, 얻을 수 있는 구체적인 정보(수상 기준, 성장 노하우)를 명확히 제시합니다. 간결하고 임팩트 있는 메시지입니다. 문자 수 제한을 준수합니다.</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 3</span>
-                                            <span class="ai-score">★ 8.7</span>
-                                        </div>
-                                        <div class="ai-title">{'main_copy': '어워즈 수상,\n우리 가게도?', 'sub_copy': '성공 비법부터 수상 전략까지 한눈에!'}</div>
-                                        <div class="ai-reason">'우리 가게도?'라는 질문으로 사장님의 공감과 참여를 유도하며, 성공을 위한 포괄적인 정보(비법, 전략)를 얻을 수 있음을 강조합니다. 친근하면서도 궁금증을 자극하는 문구입니다. 문자 수 제한을 준수합니다.</div>
-                                    </div>
-                                    
-                                    </div>
-                                </div>
-                                
                     </div>
                     
                     <div class="item">
@@ -873,46 +909,6 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
-                                <div class="ai-suggestions-container">
-                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
-                                    <div class="ai-content" style="display:none;">
-                                        
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 1</span>
-                                            <span class="ai-score">★ 9.2</span>
-                                        </div>
-                                        <div class="ai-title">사장님, 신차로
-세금 절약하세요!
-비용/부가세 환급 카니발 월 34만</div>
-                                        <div class="ai-reason">사장님을 직접 호명하여 주목도를 높이고, '신차로 세금 절약'이라는 핵심 가치를 명확하게 제시합니다. 서브 카피는 두 가지 세금 혜택을 간결하게 요약하고 제품(카니발)과 가격을 포함하여 정보 전달력을 높였습니다. (메인1: 9자, 메인2: 10자, 서브: 23자)</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 2</span>
-                                            <span class="ai-score">★ 8.9</span>
-                                        </div>
-                                        <div class="ai-title">카니발로 절세
-혜택 받으세요!
-비용처리, 부가세 환급 월 34만원대</div>
-                                        <div class="ai-reason">제품인 '카니발'을 먼저 제시하여 무엇으로 혜택을 받는지 명확히 하고, '절세 혜택'이라는 핵심 메시지를 직관적으로 전달합니다. 서브 카피는 비용처리 및 부가세 환급이라는 구체적인 혜택과 월 납입액을 상세하게 기술하여 설득력을 높였습니다. (메인1: 9자, 메인2: 9자, 서브: 25자)</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 3</span>
-                                            <span class="ai-score">★ 8.7</span>
-                                        </div>
-                                        <div class="ai-title">사장님, 똑똑한
-절세 신차 선택!
-비용+부가세 환급! 월 34만 카니발</div>
-                                        <div class="ai-reason">'똑똑한 선택'이라는 문구를 통해 사장님의 현명한 의사결정을 유도하고, 신차 구입이 절세로 이어진다는 점을 강조합니다. 서브 카피는 두 가지 환급 혜택을 느낌표와 함께 제시하여 이점을 부각하고, 월 납입액과 차량 정보를 간결하게 전달합니다. (메인1: 9자, 메인2: 10자, 서브: 25자)</div>
-                                    </div>
-                                    
-                                    </div>
-                                </div>
-                                
                     </div>
                     
                     <div class="item">
@@ -981,40 +977,6 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
-                                <div class="ai-suggestions-container">
-                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
-                                    <div class="ai-content" style="display:none;">
-                                        
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 1</span>
-                                            <span class="ai-score">★ 9.2</span>
-                                        </div>
-                                        <div class="ai-title">쌀 특가! 오늘만</div>
-                                        <div class="ai-reason">'쌀 특가'로 핵심 혜택을 명확히 전달하며, '오늘만'이라는 문구로 즉각적인 행동을 유도하는 긴급성을 부여합니다. 사장님들이 놓치지 않아야 할 기회임을 강조하여 구매 동기를 높입니다.</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 2</span>
-                                            <span class="ai-score">★ 8.9</span>
-                                        </div>
-                                        <div class="ai-title">사장님! 쌀 특가</div>
-                                        <div class="ai-reason">'사장님!'이라는 직접적인 호칭으로 타겟 고객에게 메시지의 관련성을 높여 주목도를 확보합니다. 바로 뒤에 핵심 혜택인 '쌀 특가'를 붙여 간결하고 개인화된 정보를 전달합니다.</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 3</span>
-                                            <span class="ai-score">★ 9.1</span>
-                                        </div>
-                                        <div class="ai-title">배민 쌀 특가!</div>
-                                        <div class="ai-reason">'배민'이라는 강력하고 익숙한 플랫폼 브랜드를 전면에 내세워 신뢰도와 인지도를 높이고, '쌀 특가'라는 핵심 혜택을 결합하여 간결하면서도 임팩트 있게 전달합니다. 브랜드 연상 효과가 큽니다.</div>
-                                    </div>
-                                    
-                                    </div>
-                                </div>
-                                
                     </div>
                     
                 </div>
@@ -1281,7 +1243,7 @@
             <div class="area-card">
                 <div class="area-header">
                     <h3>마이영역배너</h3>
-                    <span class="count-badge">2개</span>
+                    <span class="count-badge">3개</span>
                 </div>
                 <div class="area-items">
                     
@@ -1291,40 +1253,6 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
-                                <div class="ai-suggestions-container">
-                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
-                                    <div class="ai-content" style="display:none;">
-                                        
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 1</span>
-                                            <span class="ai-score">★ 9.2</span>
-                                        </div>
-                                        <div class="ai-title">{'main': '단 만원! 가게 홍보와 나눔을', 'sub': '지금 참여해 매출 성장, 나눔 실천!'}</div>
-                                        <div class="ai-reason">메인 카피는 '단 만원'이라는 핵심 가격 메리트와 '가게 홍보', '나눔'이라는 두 가지 주요 목적을 간결하게 제시합니다. 서브 카피는 '지금 참여'라는 행동 유도와 함께 '매출 성장', '나눔 실천'이라는 구체적인 혜택을 명확히 전달하여, 사장님들이 이 배너를 통해 얻을 수 있는 실질적인 가치를 강조합니다.</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 2</span>
-                                            <span class="ai-score">★ 9.0</span>
-                                        </div>
-                                        <div class="ai-title">{'main': '만원의 힘! 우리 가게 빛내고', 'sub': '매출UP, 착한 나눔 실천을 동시에!'}</div>
-                                        <div class="ai-reason">'만원의 힘'이라는 표현으로 작은 금액으로 큰 효과를 낼 수 있다는 점을 강조하며 호기심을 유발합니다. '우리 가게 빛내고'는 모호한 '달라집니다'보다 구체적으로 가게의 가시성과 매력이 높아진다는 의미를 전달합니다. 서브 카피는 사장님들이 가장 원하는 '매출UP'과 더불어 긍정적인 이미지의 '착한 나눔'을 '동시에' 얻을 수 있음을 어필하여 매력적입니다.</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 3</span>
-                                            <span class="ai-score">★ 9.3</span>
-                                        </div>
-                                        <div class="ai-title">{'main': '만원으로 가게 알리고 성장!', 'sub': '나눔 참여로 매출도 UP, 가치도 UP!'}</div>
-                                        <div class="ai-reason">메인 카피는 '만원'이라는 핵심 조건과 '가게 알림', '성장'이라는 사장님들의 가장 큰 니즈를 직관적으로 연결하여 전달력을 높였습니다. 서브 카피에서는 '나눔 참여'가 단순히 좋은 일에서 끝나는 것이 아니라, '매출 UP'이라는 직접적인 금전적 이득과 함께 '가치 UP'이라는 브랜드 이미지 제고 효과까지 있음을 강조하여 참여를 독려합니다. 현대적이고 간결한 표현을 사용했습니다.</div>
-                                    </div>
-                                    
-                                    </div>
-                                </div>
-                                
                     </div>
                     
                     <div class="item">
@@ -1333,40 +1261,14 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
-                                <div class="ai-suggestions-container">
-                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
-                                    <div class="ai-content" style="display:none;">
-                                        
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 1</span>
-                                            <span class="ai-score">★ 8.8</span>
-                                        </div>
-                                        <div class="ai-title">사장님, 쌀 특가전! - 고품질 쌀, 놓칠 수 없는 가격!</div>
-                                        <div class="ai-reason">'사장님' 직접 호칭으로 개인화 및 집중도를 높였습니다. '특가전'으로 특별 행사임을 강조하고, '놓칠 수 없는 가격'으로 혜택을 명확히 전달하여 구매 유도 효과를 높였습니다.</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 2</span>
-                                            <span class="ai-score">★ 9.1</span>
-                                        </div>
-                                        <div class="ai-title">프리미엄 쌀, 특가! - 사장님, 오늘만 특별 할인!</div>
-                                        <div class="ai-reason">'프리미엄'으로 쌀의 품질을 메인 카피에서 강조하고, '오늘만'을 통해 강력한 긴급성을 부여했습니다. '사장님' 호칭으로 개인화하여 한정된 기회임을 부각시킵니다.</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 3</span>
-                                            <span class="ai-score">★ 8.9</span>
-                                        </div>
-                                        <div class="ai-title">사장님 쌀데이! 특가 - 최고 품질 쌀, 지금 바로 득템!</div>
-                                        <div class="ai-reason">'쌀데이'라는 캐치한 표현으로 친근함과 특별함을 더하고, '특가'로 즉각적인 혜택을 제시합니다. 서브 카피 '지금 바로 득템!'은 행동을 유도하며, 좋은 기회를 잡으라는 메시지를 전달합니다.</div>
-                                    </div>
-                                    
-                                    </div>
-                                </div>
-                                
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
+                            <a href="https://mart.baemin.com/campaign/landing/LXjGvBKpdDxlJzzr" target="_blank" class="item-title">배민상회 2월 상회대축제 오픈 - 최대 87% 할인에 쿠폰혜택까지</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
                     </div>
                     
                 </div>
@@ -1385,40 +1287,6 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
-                                <div class="ai-suggestions-container">
-                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
-                                    <div class="ai-content" style="display:none;">
-                                        
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 1</span>
-                                            <span class="ai-score">★ 9.2</span>
-                                        </div>
-                                        <div class="ai-title">2026 트렌드로 매출 UP!</div>
-                                        <div class="ai-reason">트렌드 정보를 통해 사장님들이 가장 원하는 '매출 상승'이라는 직접적인 이점을 명확하게 제시합니다. 'UP!'이라는 간결하고 강렬한 표현으로 시선을 사로잡습니다. (14자)</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 2</span>
-                                            <span class="ai-score">★ 8.8</span>
-                                        </div>
-                                        <div class="ai-title">2026 트렌드, 미리 알고 성공!</div>
-                                        <div class="ai-reason">'미리 알고'라는 문구로 선제적인 정보 습득의 중요성과 함께 궁극적인 목표인 '성공'을 연결하여 사장님들의 참여를 유도합니다. (19자)</div>
-                                    </div>
-                                    
-                                    <div class="ai-suggestion">
-                                        <div class="ai-sug-header">
-                                            <span class="ai-badge">AI 제안 3</span>
-                                            <span class="ai-score">★ 8.5</span>
-                                        </div>
-                                        <div class="ai-title">2026 트렌드 활용 꿀팁!</div>
-                                        <div class="ai-reason">'활용법' 대신 친근하고 유용한 정보의 뉘앙스를 주는 '꿀팁'을 사용하여 실용적인 정보 제공을 강조합니다. 바쁜 사장님들이 즉시 적용할 수 있는 쉬운 정보를 기대하게 합니다. (18자)</div>
-                                    </div>
-                                    
-                                    </div>
-                                </div>
-                                
                     </div>
                     
                 </div>
@@ -1433,6 +1301,26 @@
         </div>
     </div>
     
+    <!-- ⚙️ 설정 모달 -->
+    <div id="settings-modal" class="settings-modal" onclick="closeSettingsIfBackground(event)">
+        <div class="settings-modal-box">
+            <h3>⚙️ GitHub 설정</h3>
+            <p class="settings-note">토큰은 이 브라우저의 localStorage에만 저장되며 외부로 전송되지 않습니다.</p>
+            <label class="settings-label" for="settings-token-input">GitHub Personal Access Token</label>
+            <input type="password" id="settings-token-input" class="settings-input"
+                   placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                   autocomplete="off">
+            <p class="settings-note" style="margin-top:8px;">
+                ※ <strong>workflow</strong> 권한이 있는 PAT가 필요합니다.<br>
+                GitHub → Settings → Developer settings → Personal access tokens
+            </p>
+            <div class="settings-btn-row">
+                <button class="settings-cancel-btn" onclick="closeSettings()">취소</button>
+                <button class="settings-save-btn" onclick="saveSettings()">💾 저장</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 스크린샷 모달 -->
     <div id="screenshot-modal" class="screenshot-modal" onclick="closeScreenshotIfBackground(event)">
         <div class="screenshot-modal-inner">
@@ -1444,7 +1332,122 @@
         </div>
     </div>
 
+    <!-- 토스트 알림 -->
+    <div id="toast" class="toast"></div>
+
     <script>
+        // ── 설정 ──────────────────────────────────────────────
+        const GITHUB_REPO = 'kwkimd/baemmin-monitor';
+        const WORKFLOW_FILE = 'monitor.yml';
+
+        // ── 토스트 알림 ───────────────────────────────────────
+        function showToast(msg, type = 'info', duration = 4000) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast ' + type;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), duration);
+        }
+
+        // ── 모니터링 실행 ─────────────────────────────────────
+        async function triggerMonitoring() {
+            const token = localStorage.getItem('baemin_gh_token') || '';
+            if (!token) {
+                showToast('⚙️ 먼저 GitHub 토큰을 설정해주세요.', 'info');
+                openSettings();
+                return;
+            }
+            if (!GITHUB_REPO) {
+                showToast('❌ GitHub 저장소 정보가 없습니다.
+관리자에게 문의하세요.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('run-btn');
+            btn.disabled = true;
+            btn.classList.add('running');
+            btn.textContent = '⏳ 요청 중...';
+
+            try {
+                const resp = await fetch(
+                    `https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Accept': 'application/vnd.github.v3+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ ref: 'main' })
+                    }
+                );
+
+                if (resp.status === 204) {
+                    btn.textContent = '✅ 실행됨';
+                    showToast('✅ 모니터링이 시작되었습니다!
+약 5분 후 새로고침하면 결과를 볼 수 있습니다.', 'success', 6000);
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.classList.remove('running');
+                        btn.textContent = '🔄 모니터링 실행';
+                    }, 10000);
+                } else if (resp.status === 401) {
+                    showToast('❌ 인증 실패: 토큰이 올바르지 않습니다.
+⚙️ 설정에서 토큰을 다시 입력하세요.', 'error', 6000);
+                    btn.disabled = false;
+                    btn.classList.remove('running');
+                    btn.textContent = '🔄 모니터링 실행';
+                } else if (resp.status === 403) {
+                    showToast('❌ 권한 부족: workflow 권한이 있는 토큰이 필요합니다.', 'error', 6000);
+                    btn.disabled = false;
+                    btn.classList.remove('running');
+                    btn.textContent = '🔄 모니터링 실행';
+                } else {
+                    const txt = await resp.text();
+                    showToast(`❌ 실행 실패 (HTTP ${resp.status})
+${txt.slice(0, 100)}`, 'error', 6000);
+                    btn.disabled = false;
+                    btn.classList.remove('running');
+                    btn.textContent = '🔄 모니터링 실행';
+                }
+            } catch (e) {
+                showToast(`❌ 네트워크 오류: ${e.message}`, 'error', 6000);
+                btn.disabled = false;
+                btn.classList.remove('running');
+                btn.textContent = '🔄 모니터링 실행';
+            }
+        }
+
+        // ── 설정 모달 ─────────────────────────────────────────
+        function openSettings() {
+            const saved = localStorage.getItem('baemin_gh_token') || '';
+            document.getElementById('settings-token-input').value = saved;
+            document.getElementById('settings-modal').classList.add('active');
+            setTimeout(() => document.getElementById('settings-token-input').focus(), 100);
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').classList.remove('active');
+        }
+
+        function closeSettingsIfBackground(event) {
+            if (event.target === document.getElementById('settings-modal')) {
+                closeSettings();
+            }
+        }
+
+        function saveSettings() {
+            const token = document.getElementById('settings-token-input').value.trim();
+            if (!token) {
+                showToast('⚠️ 토큰을 입력해주세요.', 'info');
+                return;
+            }
+            localStorage.setItem('baemin_gh_token', token);
+            closeSettings();
+            showToast('✅ 토큰이 저장되었습니다.', 'success', 3000);
+        }
+
+        // ── 버전 / 스크린샷 ───────────────────────────────────
         function changeVersion(version) {
             if (version) {
                 window.location.href = 'versions/' + version + '.html';
