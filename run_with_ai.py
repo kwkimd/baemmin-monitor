@@ -37,20 +37,33 @@ def run_ai_analysis_if_needed(results, logger):
         from copywriter import CopywriterAI, PerformanceDataLoader, Config as AIConfig
         from sheets_manager import GoogleSheetsManager
         import time
-        
-        # 설정 로드
+
+        # 설정 로드 (config.json의 gemini_api_key 읽기)
         AIConfig.load_config()
+
+        if not AIConfig.GEMINI_API_KEY:
+            logger.error("❌ Gemini API 키 없음. config.json의 gemini_api_key를 설정하세요.")
+            return {}
         
+        # AI 제안 제외 영역 (콘텐츠 특성상 카피 개선이 불필요한 영역)
+        AI_EXCLUDED_AREAS = {
+            '최신외식업소식', '파트너비즈니스팁', '최신장사노하우',
+            '장사노하우슬롯', '이벤트혜택', '외식업광장숏츠'
+        }
+
         # 영역별 데이터 정리
         items = results.get('items', [])
         area_data = {}
-        
+
         for item in items:
             area = item.get('area', '기타')
+            # AI 제외 영역 건너뜀
+            if area in AI_EXCLUDED_AREAS:
+                continue
             # 탭메뉴 제외
             if '[탭]' in item.get('title', ''):
                 continue
-            
+
             if area not in area_data:
                 area_data[area] = []
             area_data[area].append(item)
@@ -76,7 +89,7 @@ def run_ai_analysis_if_needed(results, logger):
             logger.info(f"  📌 [{area}] 분석 중...")
             area_results = []
             
-            for item in items_list[:5]:  # 영역당 최대 5개만 (API 절약)
+            for item in items_list[:10]:  # 영역당 최대 10개 (메인배너 7~8개 커버)
                 title = item.get('title', '')
                 
                 if not title:
@@ -97,7 +110,8 @@ def run_ai_analysis_if_needed(results, logger):
             if area_results:
                 ai_results[area] = area_results
         
-        logger.info(f"✅ AI 분석 완료: {total_analyzed}개 항목")
+        excluded_count = len(AI_EXCLUDED_AREAS)
+        logger.info(f"✅ AI 분석 완료: {total_analyzed}개 항목 (제외 영역 {excluded_count}개)")
         
         # JSON 저장
         ai_output_dir = SCRIPT_DIR / 'ai_suggestions'
@@ -140,7 +154,10 @@ def main():
     logger = logging.getLogger()
     
     logger.info("🚀 AI 통합 모니터링 시스템 시작")
-    
+
+    # GitHub 설정 로드 (upload_with_version에서 필요)
+    MainConfig.load_config()
+
     # 최신 results 파일 찾기
     logs_dir = SCRIPT_DIR / 'logs'
     result_files = sorted(logs_dir.glob('results_*.json'), reverse=True)
@@ -187,7 +204,7 @@ def main():
                 pass
         
         # HTML 생성 (AI 제안 포함)
-        html_content = generate_html_report(results, version_list, ai_suggestions)
+        html_content = generate_html_report(results, version_list, ai_suggestions, github_repo=MainConfig.GITHUB_REPO)
         
         # 로컬 저장
         html_path = SCRIPT_DIR / 'report.html'
@@ -199,11 +216,11 @@ def main():
         else:
             logger.info(f"✅ HTML 저장 (AI 제안 없음): {html_path}")
         
-        # GitHub 업로드
+        # GitHub 업로드 (AI 제안 포함)
         if MainConfig.GITHUB_TOKEN and MainConfig.GITHUB_REPO:
             uploader = GitHubUploader(MainConfig.GITHUB_TOKEN, MainConfig.GITHUB_REPO, logger)
-            uploader.upload_with_version(results, html_content)
-            logger.info("✅ GitHub Pages 업로드 완료")
+            uploader.upload_with_version(results, html_content, ai_suggestions)
+            logger.info("✅ GitHub Pages 업로드 완료 (AI 제안 포함)")
         
     except Exception as e:
         logger.error(f"❌ HTML 생성 오류: {e}")

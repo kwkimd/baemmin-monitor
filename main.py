@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 배민외식업광장 슬롯 모니터링 시스템 v3
 - 10개 영역 모니터링 (플레이스홀더 추가)
@@ -7,8 +7,12 @@
 """
 
 import os
+import re
 import json
 import time
+import random
+import platform
+import subprocess
 import logging
 import requests
 import base64
@@ -22,7 +26,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-from webdriver_manager.chrome import ChromeDriverManager
+# from webdriver_manager.chrome import ChromeDriverManager  # selenium-manager로 대체
 
 from sheets_manager import GoogleSheetsManager
 from html_generator import generate_html_report
@@ -176,49 +180,139 @@ def setup_logging():
 # ============================================================
 # 브라우저 설정
 # ============================================================
+def _get_chrome_major_version():
+    """설치된 Chrome의 메이저 버전 번호 문자열 반환 (실패 시 기본값 '120')"""
+    try:
+        if platform.system() == 'Windows':
+            # Windows: 레지스트리에서 버전 읽기
+            try:
+                import winreg
+                key = winreg.OpenKey(
+                    winreg.HKEY_CURRENT_USER,
+                    r'Software\Google\Chrome\BLBeacon'
+                )
+                version, _ = winreg.QueryValueEx(key, 'version')
+                return version.split('.')[0]
+            except Exception:
+                # 레지스트리 실패 시 바이너리 직접 확인
+                chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+                if os.path.exists(chrome_path):
+                    result = subprocess.run(
+                        [chrome_path, '--version'],
+                        capture_output=True, text=True, timeout=5
+                    )
+                    ver = result.stdout.strip().split()[-1].split('.')[0]
+                    if ver.isdigit():
+                        return ver
+        else:
+            # Linux: google-chrome / chromium 순으로 시도
+            for binary in ['google-chrome', 'google-chrome-stable', 'chromium-browser', 'chromium']:
+                try:
+                    result = subprocess.run(
+                        [binary, '--version'],
+                        capture_output=True, text=True, timeout=5
+                    )
+                    if result.returncode == 0:
+                        # "Google Chrome 120.0.6099.130" → "120"
+                        ver = result.stdout.strip().split()[-1].split('.')[0]
+                        if ver.isdigit():
+                            return ver
+                except FileNotFoundError:
+                    continue
+    except Exception:
+        pass
+    return '120'  # 기본값
+
+
 def create_browser(logger):
     """Selenium 브라우저 생성"""
     
     logger.info("🚀 브라우저 시작 중 (백그라운드)...")
-    
+
     options = Options()
     options.add_argument('--headless=new')
-    options.add_argument('--no-sandbox')
+    # Linux(GitHub Actions)는 root 실행이므로 --no-sandbox 필요; Windows는 생략
+    if platform.system() != 'Windows':
+        options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1920,1080')
     options.add_argument('--disable-blink-features=AutomationControlled')
     options.add_experimental_option('excludeSwitches', ['enable-automation'])
     options.add_experimental_option('useAutomationExtension', False)
-    
+    options.add_argument('--disable-infobars')
+
+    # 실제 설치된 Chrome 버전과 UA 일치시켜 버전 불일치 탐지 방지
+    chrome_major = _get_chrome_major_version()
+    logger.info(f"🔎 Chrome 메이저 버전 감지: {chrome_major}")
     options.add_argument(
-        'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-        'AppleWebKit/537.36 (KHTML, like Gecko) '
-        'Chrome/120.0.0.0 Safari/537.36'
+        f'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+        f'AppleWebKit/537.36 (KHTML, like Gecko) '
+        f'Chrome/{chrome_major}.0.0.0 Safari/537.36'
     )
-    
-    options.add_argument('--lang=ko-KR')
+
+    options.add_argument('--lang=ko-KR,ko')
     options.add_experimental_option('prefs', {
         'intl.accept_languages': 'ko-KR,ko,en-US,en',
+        'profile.default_content_setting_values.notifications': 2,
     })
-    
+
     try:
-        service = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=options)
-        
-        driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
-            'source': '''
-                Object.defineProperty(navigator, 'webdriver', {
-                    get: () => undefined
-                });
-            '''
-        })
-        
+        # Chrome 바이너리 경로 플랫폼별 분기
+        if platform.system() == 'Windows':
+            chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+            if os.path.exists(chrome_path):
+                options.binary_location = chrome_path
+        # Linux에서는 selenium-manager가 PATH에서 자동 감지
+
+        driver = webdriver.Chrome(options=options)  # selenium-manager 사용
+
+        # 확장 CDP 스텔스 패치 (다중 fingerprint 제거)
+        stealth_js = """
+            // 1. navigator.webdriver 숨기기
+            Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+
+            // 2. navigator.plugins 실제 플러그인처럼
+            Object.defineProperty(navigator, 'plugins', {
+                get: () => [
+                    {filename: 'internal-pdf-viewer', description: 'Portable Document Format'},
+                    {filename: 'mhjfbmdgcfjbbpaeojofohoefgiehjai', description: 'Chrome PDF Viewer'},
+                ]
+            });
+
+            // 3. navigator.languages 설정
+            Object.defineProperty(navigator, 'languages', {get: () => ['ko-KR', 'ko', 'en-US', 'en']});
+
+            // 4. WebGL vendor/renderer 정상값으로
+            const getParameter = WebGLRenderingContext.prototype.getParameter;
+            WebGLRenderingContext.prototype.getParameter = function(parameter) {
+                if (parameter === 37445) return 'Intel Inc.';
+                if (parameter === 37446) return 'Intel Iris OpenGL Engine';
+                return getParameter.call(this, parameter);
+            };
+
+            // 5. window.chrome 존재하는 것처럼
+            window.chrome = {runtime: {}, loadTimes: function(){}, csi: function(){}, app: {}};
+
+            // 6. Permission 쿼리 정상 응답
+            const originalQuery = window.navigator.permissions.query;
+            window.navigator.permissions.query = (parameters) => (
+                parameters.name === 'notifications' ?
+                    Promise.resolve({state: Notification.permission}) :
+                    originalQuery(parameters)
+            );
+
+            // 7. headless 탐지 방지
+            Object.defineProperty(navigator, 'maxTouchPoints', {get: () => 1});
+            Object.defineProperty(screen, 'colorDepth', {get: () => 24});
+        """
+        driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {'source': stealth_js})
+
         driver.set_page_load_timeout(Config.PAGE_LOAD_TIMEOUT)
-        
+
         logger.info("✅ 브라우저 시작 완료")
         return driver
-        
+
     except Exception as e:
         logger.error(f"❌ 브라우저 생성 실패: {e}")
         raise
@@ -300,13 +394,13 @@ class BaeminMonitor:
             self.driver.get(Config.TARGET_URL)
             
             self.logger.info("⏳ 페이지 로딩 대기 중...")
-            time.sleep(5)
-            
+            time.sleep(random.uniform(3.5, 6.0))
+
             WebDriverWait(self.driver, Config.ELEMENT_WAIT_TIMEOUT).until(
                 EC.presence_of_element_located((By.TAG_NAME, 'body'))
             )
-            
-            time.sleep(2)
+
+            time.sleep(random.uniform(1.5, 3.0))
             self._close_popups()
             time.sleep(1)
             
@@ -342,17 +436,18 @@ class BaeminMonitor:
             return False
     
     def _scroll_page(self):
-        """페이지 스크롤"""
+        """페이지 스크롤 (랜덤 속도로 사람처럼)"""
         try:
             total_height = self.driver.execute_script("return document.body.scrollHeight")
-            
-            for i in range(0, min(total_height, 10000), 500):
+
+            step = random.randint(300, 600)
+            for i in range(0, min(total_height, 10000), step):
                 self.driver.execute_script(f"window.scrollTo(0, {i});")
-                time.sleep(0.3)
-            
+                time.sleep(random.uniform(0.15, 0.45))
+
             self.driver.execute_script("window.scrollTo(0, 0);")
             time.sleep(1)
-            
+
         except Exception as e:
             self.logger.warning(f"⚠️ 스크롤 오류: {e}")
     
@@ -579,20 +674,35 @@ class BaeminMonitor:
             pass
         return items
     
+    # 장사노하우 UI 배지 텍스트 패턴 (제목에서 제거)
+    _KNOWHOW_BADGE_RE = re.compile(
+        r'^(오늘\s*신청\s*마감|신청\s*마감(\s*D-\d+)?|마감\s*임박)\s*$'
+    )
+
     def _extract_knowhow(self, config):
         """장사노하우 추출"""
         items = []
         try:
-            knowhow_items = self.driver.find_elements(By.CSS_SELECTOR, config['items_selector'])
+            # 컨테이너 내에서만 아이템 찾기 (다른 영역 데이터 혼입 방지)
+            try:
+                container = self.driver.find_element(By.CSS_SELECTOR, config['container'])
+                knowhow_items = container.find_elements(By.CSS_SELECTOR, config['items_selector'])
+            except:
+                knowhow_items = self.driver.find_elements(By.CSS_SELECTOR, config['items_selector'])
+
             for item in knowhow_items:
                 try:
                     text = item.text.strip()
                     href = item.get_attribute('href') or ''
-                    
+
                     if text and len(text) > 3:
-                        lines = text.split('\n')
-                        title = lines[0] if lines else text
-                        
+                        # 배지 텍스트("오늘 신청 마감", "신청 마감 D-1" 등) 제거
+                        clean_lines = [
+                            l.strip() for l in text.split('\n')
+                            if l.strip() and not self._KNOWHOW_BADGE_RE.match(l.strip())
+                        ]
+                        title = clean_lines[0] if clean_lines else text.split('\n')[0]
+
                         items.append({
                             'title': title[:200],
                             'link': href,
@@ -744,16 +854,29 @@ class BaeminMonitor:
         try:
             placeholder_input = self.driver.find_element(By.CSS_SELECTOR, config['input_selector'])
             placeholder_text = placeholder_input.get_attribute('placeholder')
-            
+
             if placeholder_text and placeholder_text.strip():
+                # 문구가 있으면 정상 (링크가 없어도 문제 없음)
                 items.append({
                     'title': placeholder_text.strip(),
                     'link': '',
-                    'link_status': '링크없음'
+                    'link_status': '정상'
+                })
+            else:
+                # 문구가 없을 때만 확인 필요
+                items.append({
+                    'title': '(플레이스홀더 문구 없음)',
+                    'link': '',
+                    'link_status': '문구없음'
                 })
         except Exception as e:
             self.logger.warning(f"플레이스홀더 추출 실패: {e}")
-        
+            items.append({
+                'title': '(플레이스홀더 확인 불가)',
+                'link': '',
+                'link_status': '확인불가'
+            })
+
         return items
     
     def _check_link(self, url):
@@ -761,19 +884,34 @@ class BaeminMonitor:
         if not url or url.startswith('javascript:') or url.startswith('#'):
             return '링크없음'
         
+        req_headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36'
+        }
+        
         try:
             response = requests.head(
-                url,
-                timeout=5,
-                allow_redirects=True,
-                headers={'User-Agent': 'Mozilla/5.0'}
+                url, timeout=7, allow_redirects=True,
+                headers=req_headers, verify=True
             )
-            
             if response.status_code < 400:
                 return '정상'
             else:
                 return f'오류({response.status_code})'
-                
+        except requests.exceptions.SSLError:
+            # SSL 인증서 문제(자체서명 등) - verify=False로 재시도
+            try:
+                import urllib3
+                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+                response = requests.head(
+                    url, timeout=7, allow_redirects=True,
+                    headers=req_headers, verify=False
+                )
+                if response.status_code < 400:
+                    return '정상'
+                else:
+                    return f'오류({response.status_code})'
+            except:
+                return '확인불가'
         except:
             return '확인불가'
     
@@ -979,26 +1117,26 @@ class GitHubUploader:
             f'Update version list'
         )
     
-    def upload_with_version(self, results, html_content):
+    def upload_with_version(self, results, html_content, ai_suggestions=None):
         """버전 관리와 함께 업로드"""
-        
+
         # 현재 버전 ID 생성
         version_id = f"{results.get('date', '')}_{results.get('time', '').replace(':', '-')}"
-        
+
         # 버전 목록 가져오기
         version_list = self.get_version_list()
-        
+
         # 새 버전 추가 (최신이 앞에)
         if version_id not in version_list:
             version_list.insert(0, version_id)
-        
+
         # 최대 30개 버전만 유지
         version_list = version_list[:30]
-        
-        # HTML 생성 (버전 목록 포함)
-        html_with_versions = generate_html_report(results, version_list)
-        
-        # 1. 메인 index.html 업로드
+
+        # HTML 생성 (버전 목록 + AI 제안 포함)
+        html_with_versions = generate_html_report(results, version_list, ai_suggestions or {}, github_repo=self.repo)
+
+        # 1. 메인 index.html 업로드 (AI 제안 포함)
         success = self.upload_file(
             'index.html',
             html_with_versions,
@@ -1018,7 +1156,38 @@ class GitHubUploader:
         if version_success:
             self.logger.info(f"✅ 버전 파일 저장: versions/{version_id}.html")
         
-        # 3. 버전 목록 저장
+        # 3. 스크린샷 업로드 (PNG → screenshots/{version_id}.png)
+        screenshot_path = results.get('screenshot', '')
+        if screenshot_path and os.path.exists(screenshot_path):
+            try:
+                with open(screenshot_path, 'rb') as f:
+                    screenshot_bytes = f.read()
+                file_size_kb = len(screenshot_bytes) / 1024
+                if file_size_kb <= 3072:  # 3MB 이내만 업로드
+                    screenshot_b64 = base64.b64encode(screenshot_bytes).decode('utf-8')
+                    existing = self.get_file(f'screenshots/{version_id}.png')
+                    shot_data = {
+                        'message': f'Add screenshot {version_id}',
+                        'content': screenshot_b64,
+                        'branch': 'main'
+                    }
+                    if existing:
+                        shot_data['sha'] = existing.get('sha')
+                    shot_resp = requests.put(
+                        f"{self.api_base}/screenshots/{version_id}.png",
+                        headers=self.headers,
+                        json=shot_data
+                    )
+                    if shot_resp.status_code in [200, 201]:
+                        self.logger.info(f"✅ 스크린샷 업로드: screenshots/{version_id}.png ({file_size_kb:.0f}KB)")
+                    else:
+                        self.logger.warning(f"⚠️ 스크린샷 업로드 실패: {shot_resp.status_code}")
+                else:
+                    self.logger.warning(f"⚠️ 스크린샷 크기 초과 ({file_size_kb:.0f}KB), 업로드 건너뜀")
+            except Exception as e:
+                self.logger.warning(f"⚠️ 스크린샷 업로드 오류: {e}")
+
+        # 4. 버전 목록 저장
         self.save_version_list(version_list)
         
         # 웹페이지 URL 출력
