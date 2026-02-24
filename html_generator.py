@@ -102,8 +102,12 @@ def generate_html_report(results, version_list=None, ai_suggestions=None):
         </div>
         '''
     
-    # 확인 필요 항목 상세 목록 (탭메뉴 제외)
-    need_check_items = [item for item in items if item.get('link_status') not in ['정상', '탭메뉴']]
+    # 확인 필요 항목 상세 목록 (탭메뉴·플레이스홀더 제외)
+    need_check_items = [
+        item for item in items
+        if item.get('link_status') not in ['정상', '탭메뉴']
+        and item.get('area') != '플레이스홀더'
+    ]
     need_check_html = ""
     
     if need_check_items:
