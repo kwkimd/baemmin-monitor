@@ -15,22 +15,35 @@ jobs:
       - name: Diagnostics
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
         run: |
-          Write-Output "PATH=$env:PATH"
           $pyPath = "C:\Users\woowahan\AppData\Local\Python\bin\python.exe"
           Write-Output "Python exists: $(Test-Path $pyPath)"
           & $pyPath --version
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Install dependencies
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
         working-directory: C:\baemin
         run: |
           & "C:\Users\woowahan\AppData\Local\Python\bin\pip.exe" install -r requirements.txt --quiet
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Run monitoring (main.py)
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
         working-directory: C:\baemin
         run: |
-          & "C:\Users\woowahan\AppData\Local\Python\bin\python.exe" main.py
+          $pyPath = "C:\Users\woowahan\AppData\Local\Python\bin\python.exe"
+          $outFile = "C:\baemin_runner\ga_main_out.txt"
+          $errFile = "C:\baemin_runner\ga_main_err.txt"
+          Remove-Item $outFile, $errFile -ErrorAction SilentlyContinue
+          $proc = Start-Process $pyPath `
+            -ArgumentList "main.py" `
+            -WorkingDirectory "C:\baemin" `
+            -RedirectStandardOutput $outFile `
+            -RedirectStandardError $errFile `
+            -NoNewWindow -PassThru -Wait
+          if (Test-Path $outFile) { Get-Content $outFile }
+          if (Test-Path $errFile) { Get-Content $errFile }
+          exit $proc.ExitCode
 
       - name: Run AI analysis (run_with_ai.py)
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
@@ -38,4 +51,16 @@ jobs:
         env:
           ENABLE_AI: "true"
         run: |
-          & "C:\Users\woowahan\AppData\Local\Python\bin\python.exe" run_with_ai.py
+          $pyPath = "C:\Users\woowahan\AppData\Local\Python\bin\python.exe"
+          $outFile = "C:\baemin_runner\ga_ai_out.txt"
+          $errFile = "C:\baemin_runner\ga_ai_err.txt"
+          Remove-Item $outFile, $errFile -ErrorAction SilentlyContinue
+          $proc = Start-Process $pyPath `
+            -ArgumentList "run_with_ai.py" `
+            -WorkingDirectory "C:\baemin" `
+            -RedirectStandardOutput $outFile `
+            -RedirectStandardError $errFile `
+            -NoNewWindow -PassThru -Wait
+          if (Test-Path $outFile) { Get-Content $outFile }
+          if (Test-Path $errFile) { Get-Content $errFile }
+          exit $proc.ExitCode
