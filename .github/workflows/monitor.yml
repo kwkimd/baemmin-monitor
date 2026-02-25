@@ -11,17 +11,33 @@ jobs:
     runs-on: self-hosted   # 로컬 PC에서 실행 (봇 차단 우회)
     timeout-minutes: 30
 
+    defaults:
+      run:
+        shell: pwsh
+
     steps:
+      - name: 환경 진단 (경로·Python 확인)
+        run: |
+          Write-Host "현재 위치: $(Get-Location)"
+          Set-Location "C:\배민모니터링"
+          Write-Host "이동 후 위치: $(Get-Location)"
+          python --version
+          pip --version
+          Get-ChildItem . -Name | Select-Object -First 5
+
       - name: 의존성 확인 및 설치
-        working-directory: C:\배민모니터링
-        run: pip install -r requirements.txt --quiet
+        run: |
+          Set-Location "C:\배민모니터링"
+          pip install -r requirements.txt --quiet
 
       - name: 크롤링 실행 (main.py)
-        working-directory: C:\배민모니터링
-        run: python main.py
+        run: |
+          Set-Location "C:\배민모니터링"
+          python main.py
 
       - name: AI 분석 및 HTML 업로드 (run_with_ai.py)
-        working-directory: C:\배민모니터링
         env:
           ENABLE_AI: "true"
-        run: python run_with_ai.py
+        run: |
+          Set-Location "C:\배민모니터링"
+          python run_with_ai.py
