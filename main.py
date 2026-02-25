@@ -1270,6 +1270,21 @@ def main():
     print_summary(results, logger)
     save_to_sheets(results, logger)
 
+    # 교체 필요 감지 (동일 제목 3일/7일 이상 유지)
+    try:
+        from title_tracker import TitleTracker
+        tracker = TitleTracker(Config.LOGS_DIR / 'title_history.json')
+        seen_keys    = tracker.update(results.get('items', []))
+        stale_alerts = tracker.get_stale_alerts(seen_keys)
+        results['stale_alerts'] = stale_alerts
+        if stale_alerts:
+            logger.info(f"🔄 교체 필요 항목: {len(stale_alerts)}건")
+            for alert in stale_alerts[:3]:
+                logger.info(f"  - {alert['message']}")
+    except Exception as e:
+        logger.warning(f"⚠️ 제목 추적 오류: {e}")
+        results['stale_alerts'] = []
+
     # 이상 감지 즉시 Slack 알림 (콘텐츠 미노출/부족)
     try:
         if Config.SLACK_WEBHOOK:
@@ -1281,7 +1296,18 @@ def main():
                 logger.info(f"📨 Slack 이상 감지 알림 전송 ({len(alerts)}건)")
     except Exception as e:
         logger.warning(f"⚠️ Slack 알림 실패: {e}")
-    
+
+    # 교체 필요 즉시 Slack 알림
+    try:
+        if Config.SLACK_WEBHOOK:
+            stale_alerts = results.get('stale_alerts', [])
+            if stale_alerts:
+                from slack_notifier import SlackNotifier
+                SlackNotifier(Config.SLACK_WEBHOOK).notify_stale(stale_alerts)
+                logger.info(f"📨 Slack 교체 필요 알림 전송 ({len(stale_alerts)}건)")
+    except Exception as e:
+        logger.warning(f"⚠️ Slack 교체 필요 알림 실패: {e}")
+
     # HTML 리포트 생성 및 GitHub 업로드 (버전 관리)
     try:
         html_content = generate_html_report(results)
