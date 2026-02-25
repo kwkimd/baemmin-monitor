@@ -13,17 +13,16 @@ jobs:
 
     defaults:
       run:
-        shell: pwsh
+        shell: powershell   # Windows PowerShell 5.x (내장, pwsh 불필요)
 
     steps:
       - name: 환경 진단 (경로·Python 확인)
         run: |
           Write-Host "현재 위치: $(Get-Location)"
           Set-Location "C:\배민모니터링"
-          Write-Host "이동 후 위치: $(Get-Location)"
+          Write-Host "이동 후: $(Get-Location)"
           python --version
           pip --version
-          Get-ChildItem . -Name | Select-Object -First 5
 
       - name: 의존성 확인 및 설치
         run: |
