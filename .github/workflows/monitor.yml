@@ -16,7 +16,6 @@ jobs:
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -File "{0}"'
         run: |
           Write-Output "PATH=$env:PATH"
-          Write-Output "USERPROFILE=$env:USERPROFILE"
           $pyPath = "C:\Users\woowahan\AppData\Local\Python\bin\python.exe"
           Write-Output "Python exists: $(Test-Path $pyPath)"
           & $pyPath --version
@@ -24,16 +23,19 @@ jobs:
       - name: Install dependencies
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -File "{0}"'
         working-directory: C:\baemin
-        run: & "C:\Users\woowahan\AppData\Local\Python\bin\pip.exe" install -r requirements.txt --quiet
+        run: |
+          & "C:\Users\woowahan\AppData\Local\Python\bin\pip.exe" install -r requirements.txt --quiet
 
       - name: Run monitoring (main.py)
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -File "{0}"'
         working-directory: C:\baemin
-        run: & "C:\Users\woowahan\AppData\Local\Python\bin\python.exe" main.py
+        run: |
+          & "C:\Users\woowahan\AppData\Local\Python\bin\python.exe" main.py
 
       - name: Run AI analysis (run_with_ai.py)
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -File "{0}"'
         working-directory: C:\baemin
         env:
           ENABLE_AI: "true"
-        run: & "C:\Users\woowahan\AppData\Local\Python\bin\python.exe" run_with_ai.py
+        run: |
+          & "C:\Users\woowahan\AppData\Local\Python\bin\python.exe" run_with_ai.py
