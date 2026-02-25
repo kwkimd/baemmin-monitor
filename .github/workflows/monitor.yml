@@ -11,21 +11,29 @@ jobs:
     runs-on: self-hosted
     timeout-minutes: 30
 
+    defaults:
+      run:
+        shell: cmd
+
     steps:
       - name: Python check
         working-directory: C:\baemin
+        shell: cmd
         run: C:\Users\woowahan\AppData\Local\Python\bin\python.exe --version
 
       - name: Install dependencies
         working-directory: C:\baemin
+        shell: cmd
         run: C:\Users\woowahan\AppData\Local\Python\bin\pip.exe install -r requirements.txt --quiet
 
       - name: Run monitoring (main.py)
         working-directory: C:\baemin
+        shell: cmd
         run: C:\Users\woowahan\AppData\Local\Python\bin\python.exe main.py
 
       - name: Run AI analysis (run_with_ai.py)
         working-directory: C:\baemin
+        shell: cmd
         env:
           ENABLE_AI: "true"
         run: C:\Users\woowahan\AppData\Local\Python\bin\python.exe run_with_ai.py
