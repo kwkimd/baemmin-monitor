@@ -12,9 +12,14 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Python check
+      - name: Diagnostics
         shell: 'C:\Windows\System32\cmd.exe /c "{0}"'
-        run: C:\Users\woowahan\AppData\Local\Python\bin\python.exe --version
+        run: |
+          echo PATH=%PATH%
+          echo USERPROFILE=%USERPROFILE%
+          dir C:\Users\woowahan\AppData\Local\Python\bin\python.exe
+          C:\Users\woowahan\AppData\Local\Python\bin\python.exe --version
+          echo EXIT:%ERRORLEVEL%
 
       - name: Install dependencies
         shell: 'C:\Windows\System32\cmd.exe /c "{0}"'
