@@ -14,18 +14,18 @@ jobs:
     steps:
       - name: Python check
         working-directory: C:\baemin
-        run: python --version
+        run: C:\Users\woowahan\AppData\Local\Python\bin\python.exe --version
 
       - name: Install dependencies
         working-directory: C:\baemin
-        run: pip install -r requirements.txt --quiet
+        run: C:\Users\woowahan\AppData\Local\Python\bin\pip.exe install -r requirements.txt --quiet
 
       - name: Run monitoring (main.py)
         working-directory: C:\baemin
-        run: python main.py
+        run: C:\Users\woowahan\AppData\Local\Python\bin\python.exe main.py
 
       - name: Run AI analysis (run_with_ai.py)
         working-directory: C:\baemin
         env:
           ENABLE_AI: "true"
-        run: python run_with_ai.py
+        run: C:\Users\woowahan\AppData\Local\Python\bin\python.exe run_with_ai.py
