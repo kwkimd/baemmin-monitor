@@ -11,29 +11,23 @@ jobs:
     runs-on: self-hosted
     timeout-minutes: 30
 
-    defaults:
-      run:
-        shell: bash
-
     steps:
       - name: Python check
-        working-directory: /c/baemin
-        shell: bash
-        run: /c/Users/woowahan/AppData/Local/Python/bin/python.exe --version
+        shell: 'C:\Windows\System32\cmd.exe /c "{0}"'
+        run: C:\Users\woowahan\AppData\Local\Python\bin\python.exe --version
 
       - name: Install dependencies
-        working-directory: /c/baemin
-        shell: bash
-        run: /c/Users/woowahan/AppData/Local/Python/bin/pip.exe install -r requirements.txt --quiet
+        shell: 'C:\Windows\System32\cmd.exe /c "{0}"'
+        run: C:\Users\woowahan\AppData\Local\Python\bin\pip.exe install -r requirements.txt --quiet
 
       - name: Run monitoring (main.py)
-        working-directory: /c/baemin
-        shell: bash
-        run: /c/Users/woowahan/AppData/Local/Python/bin/python.exe main.py
+        working-directory: C:\baemin
+        shell: 'C:\Windows\System32\cmd.exe /c "{0}"'
+        run: C:\Users\woowahan\AppData\Local\Python\bin\python.exe main.py
 
       - name: Run AI analysis (run_with_ai.py)
-        working-directory: /c/baemin
-        shell: bash
+        working-directory: C:\baemin
+        shell: 'C:\Windows\System32\cmd.exe /c "{0}"'
         env:
           ENABLE_AI: "true"
-        run: /c/Users/woowahan/AppData/Local/Python/bin/python.exe run_with_ai.py
+        run: C:\Users\woowahan\AppData\Local\Python\bin\python.exe run_with_ai.py
