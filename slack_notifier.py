@@ -168,6 +168,52 @@ class SlackNotifier:
         return self._post({"blocks": blocks})
 
     # ------------------------------------------------------------------ #
+    #  🔄 교체 필요 알림 (장기 미변경 콘텐츠)
+    # ------------------------------------------------------------------ #
+    def notify_stale(self, stale_alerts: list) -> bool:
+        """동일 제목이 3일/1주일 이상 유지될 때 교체 필요 알림"""
+        if not stale_alerts:
+            return False
+
+        now_kst    = datetime.now(KST).strftime('%Y-%m-%d %H:%M:%S')
+        week_items = [a for a in stale_alerts if a.get('level') == 'alert_week']
+        day3_items = [a for a in stale_alerts if a.get('level') == 'warn_3days']
+
+        lines = []
+        if week_items:
+            lines.append(f"*🔴 1주일 이상 미변경 ({len(week_items)}건)*")
+            for a in week_items[:5]:
+                short = (a['title'][:30] + '…') if len(a['title']) > 30 else a['title']
+                lines.append(f"  • [{a['area']}] \"{short}\" — {a['days']}일째")
+            if len(week_items) > 5:
+                lines.append(f"  • ···외 {len(week_items) - 5}건 더")
+
+        if day3_items:
+            lines.append(f"*⚠️ 3일 이상 미변경 ({len(day3_items)}건)*")
+            for a in day3_items[:5]:
+                short = (a['title'][:30] + '…') if len(a['title']) > 30 else a['title']
+                lines.append(f"  • [{a['area']}] \"{short}\" — {a['days']}일째")
+            if len(day3_items) > 5:
+                lines.append(f"  • ···외 {len(day3_items) - 5}건 더")
+
+        blocks = [
+            {
+                "type": "header",
+                "text": {"type": "plain_text", "text": f"🔄 교체 필요 콘텐츠 감지 ({len(stale_alerts)}건)"}
+            },
+            {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": f"*감지 시간:* {now_kst} KST"}
+            },
+            {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": '\n'.join(lines)}
+            }
+        ]
+
+        return self._post({"blocks": blocks})
+
+    # ------------------------------------------------------------------ #
     #  🔴 오류 발생 알림 (즉시)
     # ------------------------------------------------------------------ #
     def notify_error(self, context: str, error_msg: str) -> bool:
