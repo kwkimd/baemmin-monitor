@@ -12,7 +12,6 @@ import json
 import time
 import random
 import platform
-import subprocess
 import logging
 import requests
 import base64
@@ -184,60 +183,14 @@ def setup_logging():
 # ============================================================
 # 브라우저 설정
 # ============================================================
-def _get_chrome_major_version():
-    """설치된 Chrome의 메이저 버전 번호 문자열 반환 (실패 시 기본값 '120')"""
-    try:
-        if platform.system() == 'Windows':
-            # Windows: 레지스트리에서 버전 읽기
-            try:
-                import winreg
-                key = winreg.OpenKey(
-                    winreg.HKEY_CURRENT_USER,
-                    r'Software\Google\Chrome\BLBeacon'
-                )
-                version, _ = winreg.QueryValueEx(key, 'version')
-                return version.split('.')[0]
-            except Exception:
-                # 레지스트리 실패 시 바이너리 직접 확인
-                chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
-                if os.path.exists(chrome_path):
-                    result = subprocess.run(
-                        [chrome_path, '--version'],
-                        capture_output=True, text=True, timeout=5
-                    )
-                    ver = result.stdout.strip().split()[-1].split('.')[0]
-                    if ver.isdigit():
-                        return ver
-        else:
-            # Linux: google-chrome / chromium 순으로 시도
-            for binary in ['google-chrome', 'google-chrome-stable', 'chromium-browser', 'chromium']:
-                try:
-                    result = subprocess.run(
-                        [binary, '--version'],
-                        capture_output=True, text=True, timeout=5
-                    )
-                    if result.returncode == 0:
-                        # "Google Chrome 120.0.6099.130" → "120"
-                        ver = result.stdout.strip().split()[-1].split('.')[0]
-                        if ver.isdigit():
-                            return ver
-                except FileNotFoundError:
-                    continue
-    except Exception:
-        pass
-    return '120'  # 기본값
-
-
 def create_browser(logger):
     """Selenium 브라우저 생성"""
-    
+
     logger.info("🚀 브라우저 시작 중 (백그라운드)...")
 
     options = Options()
     options.add_argument('--headless=new')
-    # Linux(GitHub Actions)는 root 실행이므로 --no-sandbox 필요; Windows는 생략
-    if platform.system() != 'Windows':
-        options.add_argument('--no-sandbox')
+    options.add_argument('--no-sandbox')          # Linux/GitHub Actions 필수; Windows에서도 무해
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1920,1080')
@@ -246,13 +199,11 @@ def create_browser(logger):
     options.add_experimental_option('useAutomationExtension', False)
     options.add_argument('--disable-infobars')
 
-    # 실제 설치된 Chrome 버전과 UA 일치시켜 버전 불일치 탐지 방지
-    chrome_major = _get_chrome_major_version()
-    logger.info(f"🔎 Chrome 메이저 버전 감지: {chrome_major}")
+    # 고정 UA (버전 탐지 방지)
     options.add_argument(
-        f'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-        f'AppleWebKit/537.36 (KHTML, like Gecko) '
-        f'Chrome/{chrome_major}.0.0.0 Safari/537.36'
+        'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+        'AppleWebKit/537.36 (KHTML, like Gecko) '
+        'Chrome/120.0.0.0 Safari/537.36'
     )
 
     options.add_argument('--lang=ko-KR,ko')
@@ -262,55 +213,18 @@ def create_browser(logger):
     })
 
     try:
-        # Chrome 바이너리 경로 플랫폼별 분기
+        # Chrome 바이너리 경로 (Windows만 명시; Linux는 selenium-manager가 자동 탐지)
         if platform.system() == 'Windows':
             chrome_path = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
             if os.path.exists(chrome_path):
                 options.binary_location = chrome_path
-        # Linux에서는 selenium-manager가 PATH에서 자동 감지
 
         driver = webdriver.Chrome(options=options)  # selenium-manager 사용
 
-        # 확장 CDP 스텔스 패치 (다중 fingerprint 제거)
-        stealth_js = """
-            // 1. navigator.webdriver 숨기기
-            Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-
-            // 2. navigator.plugins 실제 플러그인처럼
-            Object.defineProperty(navigator, 'plugins', {
-                get: () => [
-                    {filename: 'internal-pdf-viewer', description: 'Portable Document Format'},
-                    {filename: 'mhjfbmdgcfjbbpaeojofohoefgiehjai', description: 'Chrome PDF Viewer'},
-                ]
-            });
-
-            // 3. navigator.languages 설정
-            Object.defineProperty(navigator, 'languages', {get: () => ['ko-KR', 'ko', 'en-US', 'en']});
-
-            // 4. WebGL vendor/renderer 정상값으로
-            const getParameter = WebGLRenderingContext.prototype.getParameter;
-            WebGLRenderingContext.prototype.getParameter = function(parameter) {
-                if (parameter === 37445) return 'Intel Inc.';
-                if (parameter === 37446) return 'Intel Iris OpenGL Engine';
-                return getParameter.call(this, parameter);
-            };
-
-            // 5. window.chrome 존재하는 것처럼
-            window.chrome = {runtime: {}, loadTimes: function(){}, csi: function(){}, app: {}};
-
-            // 6. Permission 쿼리 정상 응답
-            const originalQuery = window.navigator.permissions.query;
-            window.navigator.permissions.query = (parameters) => (
-                parameters.name === 'notifications' ?
-                    Promise.resolve({state: Notification.permission}) :
-                    originalQuery(parameters)
-            );
-
-            // 7. headless 탐지 방지
-            Object.defineProperty(navigator, 'maxTouchPoints', {get: () => 1});
-            Object.defineProperty(screen, 'colorDepth', {get: () => 24});
-        """
-        driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {'source': stealth_js})
+        # 단순 CDP 스텔스 패치 (navigator.webdriver만 숨김)
+        driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
+            'source': "Object.defineProperty(navigator, 'webdriver', {get: () => undefined});"
+        })
 
         driver.set_page_load_timeout(Config.PAGE_LOAD_TIMEOUT)
 
