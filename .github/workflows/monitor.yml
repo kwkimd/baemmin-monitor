@@ -8,54 +8,25 @@ on:
 
 jobs:
   monitor:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    runs-on: self-hosted   # 로컬 PC에서 실행 (봇 차단 우회)
+    timeout-minutes: 30
 
     steps:
-      - name: 코드 체크아웃
-        uses: actions/checkout@v4
+      - name: 최신 코드 동기화 (git pull)
+        working-directory: C:\배민모니터링
+        shell: pwsh
+        run: git pull origin main
 
-      - name: Python 3.11 설치
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: 의존성 설치
-        run: pip install -r requirements.txt
-
-      - name: Chrome 버전 확인
-        run: google-chrome --version
-
-      - name: config.json 생성 (Secrets에서)
-        env:
-          SPREADSHEET_ID: ${{ secrets.SPREADSHEET_ID }}
-          GH_PAT: ${{ secrets.GH_PAT }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: |
-          python3 -c "
-          import json, os
-          config = {
-              'spreadsheet_id': os.environ['SPREADSHEET_ID'],
-              'target_url': 'https://ceo.baemin.com',
-              'github_token': os.environ['GH_PAT'],
-              'github_repo': 'kwkimd/baemmin-monitor',
-              'gemini_api_key': os.environ['GEMINI_API_KEY'],
-              'slack_webhook_url': os.environ.get('SLACK_WEBHOOK_URL', '')
-          }
-          with open('config.json', 'w') as f:
-              json.dump(config, f, indent=2)
-          print('config.json 생성 완료')
-          "
-
-      - name: credentials.json 복원 (Base64 Secret에서)
-        run: |
-          echo '${{ secrets.CREDENTIALS_JSON }}' | base64 -d > credentials.json
+      - name: 의존성 확인 및 설치
+        working-directory: C:\배민모니터링
+        run: pip install -r requirements.txt --quiet
 
       - name: 크롤링 실행 (main.py)
-        run: python3 main.py
+        working-directory: C:\배민모니터링
+        run: python main.py
 
       - name: AI 분석 및 HTML 업로드 (run_with_ai.py)
+        working-directory: C:\배민모니터링
         env:
           ENABLE_AI: "true"
-        run: python3 run_with_ai.py
+        run: python run_with_ai.py
