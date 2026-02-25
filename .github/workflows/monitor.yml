@@ -2,8 +2,8 @@ name: baemin-monitoring
 
 on:
   schedule:
-    - cron: '0 1 * * 1-5'   # 평일 오전 10시 KST (UTC 01:00)
-    - cron: '0 4 * * 1-5'   # 평일 오후 1시 KST (UTC 04:00)
+    - cron: '0 1 * * *'   # 매일 오전 10시 KST (UTC 01:00)
+    - cron: '0 4 * * *'   # 매일 오후 1시 KST (UTC 04:00)
   workflow_dispatch:
 
 jobs:
