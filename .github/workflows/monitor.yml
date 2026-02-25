@@ -31,19 +31,15 @@ jobs:
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
         working-directory: C:\baemin
         run: |
+          # 래퍼 스크립트를 통해 실행 - Chrome이 러너 파이프를 상속하지 않도록 close_fds=True 사용
           $pyPath = "C:\Users\woowahan\AppData\Local\Python\bin\python.exe"
-          $outFile = "C:\baemin_runner\ga_main_out.txt"
-          $errFile = "C:\baemin_runner\ga_main_err.txt"
-          Remove-Item $outFile, $errFile -ErrorAction SilentlyContinue
-          $proc = Start-Process $pyPath `
-            -ArgumentList "main.py" `
-            -WorkingDirectory "C:\baemin" `
-            -RedirectStandardOutput $outFile `
-            -RedirectStandardError $errFile `
-            -NoNewWindow -PassThru -Wait
-          if (Test-Path $outFile) { Get-Content $outFile }
-          if (Test-Path $errFile) { Get-Content $errFile }
-          exit $proc.ExitCode
+          & $pyPath "C:\baemin_runner\run_main.py"
+          $exitCode = $LASTEXITCODE
+          Write-Output "--- stdout ---"
+          if (Test-Path "C:\baemin_runner\ga_main_out.txt") { Get-Content "C:\baemin_runner\ga_main_out.txt" }
+          Write-Output "--- stderr ---"
+          if (Test-Path "C:\baemin_runner\ga_main_err.txt") { Get-Content "C:\baemin_runner\ga_main_err.txt" }
+          exit $exitCode
 
       - name: Run AI analysis (run_with_ai.py)
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
@@ -51,16 +47,12 @@ jobs:
         env:
           ENABLE_AI: "true"
         run: |
+          # 래퍼 스크립트를 통해 실행 - Chrome이 러너 파이프를 상속하지 않도록 close_fds=True 사용
           $pyPath = "C:\Users\woowahan\AppData\Local\Python\bin\python.exe"
-          $outFile = "C:\baemin_runner\ga_ai_out.txt"
-          $errFile = "C:\baemin_runner\ga_ai_err.txt"
-          Remove-Item $outFile, $errFile -ErrorAction SilentlyContinue
-          $proc = Start-Process $pyPath `
-            -ArgumentList "run_with_ai.py" `
-            -WorkingDirectory "C:\baemin" `
-            -RedirectStandardOutput $outFile `
-            -RedirectStandardError $errFile `
-            -NoNewWindow -PassThru -Wait
-          if (Test-Path $outFile) { Get-Content $outFile }
-          if (Test-Path $errFile) { Get-Content $errFile }
-          exit $proc.ExitCode
+          & $pyPath "C:\baemin_runner\run_ai.py"
+          $exitCode = $LASTEXITCODE
+          Write-Output "--- stdout ---"
+          if (Test-Path "C:\baemin_runner\ga_ai_out.txt") { Get-Content "C:\baemin_runner\ga_ai_out.txt" }
+          Write-Output "--- stderr ---"
+          if (Test-Path "C:\baemin_runner\ga_ai_err.txt") { Get-Content "C:\baemin_runner\ga_ai_err.txt" }
+          exit $exitCode
