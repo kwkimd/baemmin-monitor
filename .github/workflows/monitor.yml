@@ -8,35 +8,24 @@ on:
 
 jobs:
   monitor:
-    runs-on: self-hosted   # 로컬 PC에서 실행 (봇 차단 우회)
+    runs-on: self-hosted
     timeout-minutes: 30
 
-    defaults:
-      run:
-        shell: powershell   # Windows PowerShell 5.x (내장, pwsh 불필요)
-
     steps:
-      - name: 환경 진단 (경로·Python 확인)
-        run: |
-          Write-Host "현재 위치: $(Get-Location)"
-          Set-Location "C:\배민모니터링"
-          Write-Host "이동 후: $(Get-Location)"
-          python --version
-          pip --version
+      - name: Python check
+        working-directory: C:\baemin
+        run: python --version
 
-      - name: 의존성 확인 및 설치
-        run: |
-          Set-Location "C:\배민모니터링"
-          pip install -r requirements.txt --quiet
+      - name: Install dependencies
+        working-directory: C:\baemin
+        run: pip install -r requirements.txt --quiet
 
-      - name: 크롤링 실행 (main.py)
-        run: |
-          Set-Location "C:\배민모니터링"
-          python main.py
+      - name: Run monitoring (main.py)
+        working-directory: C:\baemin
+        run: python main.py
 
-      - name: AI 분석 및 HTML 업로드 (run_with_ai.py)
+      - name: Run AI analysis (run_with_ai.py)
+        working-directory: C:\baemin
         env:
           ENABLE_AI: "true"
-        run: |
-          Set-Location "C:\배민모니터링"
-          python run_with_ai.py
+        run: python run_with_ai.py
