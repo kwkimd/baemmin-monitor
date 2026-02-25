@@ -13,27 +13,27 @@ jobs:
 
     defaults:
       run:
-        shell: cmd
+        shell: bash
 
     steps:
       - name: Python check
-        working-directory: C:\baemin
-        shell: cmd
-        run: C:\Users\woowahan\AppData\Local\Python\bin\python.exe --version
+        working-directory: /c/baemin
+        shell: bash
+        run: /c/Users/woowahan/AppData/Local/Python/bin/python.exe --version
 
       - name: Install dependencies
-        working-directory: C:\baemin
-        shell: cmd
-        run: C:\Users\woowahan\AppData\Local\Python\bin\pip.exe install -r requirements.txt --quiet
+        working-directory: /c/baemin
+        shell: bash
+        run: /c/Users/woowahan/AppData/Local/Python/bin/pip.exe install -r requirements.txt --quiet
 
       - name: Run monitoring (main.py)
-        working-directory: C:\baemin
-        shell: cmd
-        run: C:\Users\woowahan\AppData\Local\Python\bin\python.exe main.py
+        working-directory: /c/baemin
+        shell: bash
+        run: /c/Users/woowahan/AppData/Local/Python/bin/python.exe main.py
 
       - name: Run AI analysis (run_with_ai.py)
-        working-directory: C:\baemin
-        shell: cmd
+        working-directory: /c/baemin
+        shell: bash
         env:
           ENABLE_AI: "true"
-        run: C:\Users\woowahan\AppData\Local\Python\bin\python.exe run_with_ai.py
+        run: /c/Users/woowahan/AppData/Local/Python/bin/python.exe run_with_ai.py
