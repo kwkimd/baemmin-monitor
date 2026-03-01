@@ -17,21 +17,21 @@ jobs:
         run: |
           $pyPath = "C:\Users\woowahan\AppData\Local\Python\bin\python.exe"
           Write-Output "Python exists: $(Test-Path $pyPath)"
-          & $pyPath --version
+          cmd /c "`"$pyPath`" --version"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Install dependencies
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
         working-directory: C:\baemin
         run: |
-          & "C:\Users\woowahan\AppData\Local\Python\bin\pip.exe" install -r requirements.txt --quiet
+          cmd /c "`"C:\Users\woowahan\AppData\Local\Python\bin\pip.exe`" install -r requirements.txt --quiet"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Run monitoring (main.py)
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
         working-directory: C:\baemin
         run: |
-          & "C:\baemin_runner\run_main.bat"
+          cmd /c "C:\baemin_runner\run_main.bat"
           $exitCode = $LASTEXITCODE
           Write-Output "--- stdout ---"
           if (Test-Path "C:\baemin_runner\ga_main_out.txt") { Get-Content "C:\baemin_runner\ga_main_out.txt" }
@@ -45,7 +45,7 @@ jobs:
         env:
           ENABLE_AI: "true"
         run: |
-          & "C:\baemin_runner\run_ai.bat"
+          cmd /c "C:\baemin_runner\run_ai.bat"
           $exitCode = $LASTEXITCODE
           Write-Output "--- stdout ---"
           if (Test-Path "C:\baemin_runner\ga_ai_out.txt") { Get-Content "C:\baemin_runner\ga_ai_out.txt" }
