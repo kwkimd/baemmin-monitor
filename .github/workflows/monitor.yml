@@ -31,8 +31,7 @@ jobs:
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
         working-directory: C:\baemin
         run: |
-          $pyPath = "C:\Users\woowahan\AppData\Local\Python\bin\python.exe"
-          & $pyPath "C:\baemin_runner\run_main.py"
+          & "C:\baemin_runner\run_main.bat"
           $exitCode = $LASTEXITCODE
           Write-Output "--- stdout ---"
           if (Test-Path "C:\baemin_runner\ga_main_out.txt") { Get-Content "C:\baemin_runner\ga_main_out.txt" }
@@ -46,8 +45,7 @@ jobs:
         env:
           ENABLE_AI: "true"
         run: |
-          $pyPath = "C:\Users\woowahan\AppData\Local\Python\bin\python.exe"
-          & $pyPath "C:\baemin_runner\run_ai.py"
+          & "C:\baemin_runner\run_ai.bat"
           $exitCode = $LASTEXITCODE
           Write-Output "--- stdout ---"
           if (Test-Path "C:\baemin_runner\ga_ai_out.txt") { Get-Content "C:\baemin_runner\ga_ai_out.txt" }
