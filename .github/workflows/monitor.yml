@@ -17,22 +17,25 @@ jobs:
         run: |
           $pyPath = "C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe"
           Write-Output "Python exists: $(Test-Path $pyPath)"
-          cmd /c "`"$pyPath`" --version"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $p = Start-Process -FilePath $pyPath -ArgumentList "--version" -Wait -NoNewWindow -PassThru
+          Write-Output "Python exit: $($p.ExitCode)"
+          if ($p.ExitCode -ne 0) { exit $p.ExitCode }
 
       - name: Install dependencies
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
         working-directory: C:\baemin
         run: |
-          cmd /c "`"C:\Users\woowahan\AppData\Local\Python\bin\pip.exe`" install -r requirements.txt --quiet"
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $pipPath = "C:\Users\woowahan\AppData\Local\Python\bin\pip.exe"
+          $p = Start-Process -FilePath $pipPath -ArgumentList "install", "-r", "requirements.txt", "--quiet" -Wait -NoNewWindow -PassThru
+          if ($p.ExitCode -ne 0) { exit $p.ExitCode }
 
       - name: Run monitoring (main.py)
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
         working-directory: C:\baemin
         run: |
-          cmd /c "C:\baemin_runner\run_main.bat"
-          $exitCode = $LASTEXITCODE
+          $pyPath = "C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe"
+          $p = Start-Process -FilePath $pyPath -ArgumentList "-u", "C:\baemin_runner\run_main.py" -Wait -NoNewWindow -PassThru
+          $exitCode = $p.ExitCode
           Write-Output "--- stdout ---"
           if (Test-Path "C:\baemin_runner\ga_main_out.txt") { Get-Content "C:\baemin_runner\ga_main_out.txt" }
           Write-Output "--- stderr ---"
@@ -45,8 +48,9 @@ jobs:
         env:
           ENABLE_AI: "true"
         run: |
-          cmd /c "C:\baemin_runner\run_ai.bat"
-          $exitCode = $LASTEXITCODE
+          $pyPath = "C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe"
+          $p = Start-Process -FilePath $pyPath -ArgumentList "-u", "C:\baemin_runner\run_ai.py" -Wait -NoNewWindow -PassThru
+          $exitCode = $p.ExitCode
           Write-Output "--- stdout ---"
           if (Test-Path "C:\baemin_runner\ga_ai_out.txt") { Get-Content "C:\baemin_runner\ga_ai_out.txt" }
           Write-Output "--- stderr ---"
