@@ -15,7 +15,7 @@ jobs:
       - name: Diagnostics
         shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
         run: |
-          $pyPath = "C:\Users\woowahan\AppData\Local\Python\bin\python.exe"
+          $pyPath = "C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe"
           Write-Output "Python exists: $(Test-Path $pyPath)"
           cmd /c "`"$pyPath`" --version"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
