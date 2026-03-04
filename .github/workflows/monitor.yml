@@ -34,8 +34,18 @@ jobs:
         working-directory: C:\baemin
         run: |
           $pyPath = "C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe"
-          $p = Start-Process -FilePath $pyPath -ArgumentList "-u", "C:\baemin_runner\run_main.py" -Wait -NoNewWindow -PassThru
+          Write-Output "[DIAG] pyPath=$pyPath exists=$(Test-Path $pyPath)"
+          Write-Output "[DIAG] start=$(Get-Date -Format 'HH:mm:ss.fff')"
+          $psi = New-Object System.Diagnostics.ProcessStartInfo
+          $psi.FileName = $pyPath
+          $psi.Arguments = "-u `"C:\baemin_runner\run_main.py`""
+          $psi.UseShellExecute = $false
+          $p = [System.Diagnostics.Process]::Start($psi)
+          if ($null -eq $p) { Write-Output "[DIAG] Process.Start returned null!"; exit 1 }
+          Write-Output "[DIAG] PID=$($p.Id)"
+          $p.WaitForExit()
           $exitCode = $p.ExitCode
+          Write-Output "[DIAG] exit=$exitCode time=$(Get-Date -Format 'HH:mm:ss.fff')"
           Write-Output "--- stdout ---"
           if (Test-Path "C:\baemin_runner\ga_main_out.txt") { Get-Content "C:\baemin_runner\ga_main_out.txt" }
           Write-Output "--- stderr ---"
