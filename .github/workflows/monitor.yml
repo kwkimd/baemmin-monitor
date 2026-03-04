@@ -13,38 +13,28 @@ jobs:
 
     steps:
       - name: Diagnostics
-        shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
+        shell: powershell
         run: |
           $pyPath = "C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe"
           Write-Output "Python exists: $(Test-Path $pyPath)"
-          $p = Start-Process -FilePath $pyPath -ArgumentList "--version" -Wait -NoNewWindow -PassThru
-          Write-Output "Python exit: $($p.ExitCode)"
-          if ($p.ExitCode -ne 0) { exit $p.ExitCode }
+          & $pyPath --version
 
       - name: Install dependencies
-        shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
-        working-directory: C:\baemin
-        run: |
-          $pipPath = "C:\Users\woowahan\AppData\Local\Python\bin\pip.exe"
-          $p = Start-Process -FilePath $pipPath -ArgumentList "install", "-r", "requirements.txt", "--quiet" -Wait -NoNewWindow -PassThru
-          if ($p.ExitCode -ne 0) { exit $p.ExitCode }
-
-      - name: Run monitoring (main.py)
-        shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
+        shell: powershell
         working-directory: C:\baemin
         run: |
           $pyPath = "C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe"
-          Write-Output "[DIAG] pyPath=$pyPath exists=$(Test-Path $pyPath)"
+          & $pyPath -m pip install -r requirements.txt --quiet
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Run monitoring (main.py)
+        shell: powershell
+        working-directory: C:\baemin
+        run: |
+          $pyPath = "C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe"
           Write-Output "[DIAG] start=$(Get-Date -Format 'HH:mm:ss.fff')"
-          $psi = New-Object System.Diagnostics.ProcessStartInfo
-          $psi.FileName = $pyPath
-          $psi.Arguments = "-u `"C:\baemin_runner\run_main.py`""
-          $psi.UseShellExecute = $false
-          $p = [System.Diagnostics.Process]::Start($psi)
-          if ($null -eq $p) { Write-Output "[DIAG] Process.Start returned null!"; exit 1 }
-          Write-Output "[DIAG] PID=$($p.Id)"
-          $p.WaitForExit()
-          $exitCode = $p.ExitCode
+          & $pyPath -u "C:\baemin_runner\run_main.py"
+          $exitCode = $LASTEXITCODE
           Write-Output "[DIAG] exit=$exitCode time=$(Get-Date -Format 'HH:mm:ss.fff')"
           Write-Output "--- stdout ---"
           if (Test-Path "C:\baemin_runner\ga_main_out.txt") { Get-Content "C:\baemin_runner\ga_main_out.txt" }
@@ -53,14 +43,14 @@ jobs:
           exit $exitCode
 
       - name: Run AI analysis (run_with_ai.py)
-        shell: 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NonInteractive -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& ''{0}''"'
+        shell: powershell
         working-directory: C:\baemin
         env:
           ENABLE_AI: "true"
         run: |
           $pyPath = "C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe"
-          $p = Start-Process -FilePath $pyPath -ArgumentList "-u", "C:\baemin_runner\run_ai.py" -Wait -NoNewWindow -PassThru
-          $exitCode = $p.ExitCode
+          & $pyPath -u "C:\baemin_runner\run_ai.py"
+          $exitCode = $LASTEXITCODE
           Write-Output "--- stdout ---"
           if (Test-Path "C:\baemin_runner\ga_ai_out.txt") { Get-Content "C:\baemin_runner\ga_ai_out.txt" }
           Write-Output "--- stderr ---"
