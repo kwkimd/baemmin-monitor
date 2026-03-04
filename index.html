@@ -380,6 +380,47 @@
         .ai-toggle-btn:hover {
             transform: scale(1.05);
         }
+
+        .ai-toggle-btn-error {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .ai-error-msg {
+            color: #721c24;
+            font-size: 12px;
+            padding: 6px;
+        }
+
+        /* 수동 실행 버튼 */
+        .run-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            white-space: nowrap;
+        }
+
+        .run-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .run-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
         
         .ai-content {
             margin-top: 10px;
@@ -519,19 +560,24 @@
             <div class="header-top">
                 <div>
                     <h1>🍽️ 배민외식업광장 모니터링 대시보드</h1>
-                    <p class="update-time">📅 마지막 업데이트: 2026-03-04 11:16:34 (KST)</p>
+                    <p class="update-time">📅 마지막 업데이트: 2026-03-04 13:04:53 (KST)</p>
                     <span class="status-badge status-success">
                         ✅ 정상 수집 완료
                     </span>
                 </div>
-                
+                <div class="header-actions">
+                    
     <div class="version-selector">
         <label for="version-select">📂 버전 선택:</label>
         <select id="version-select" onchange="changeVersion(this.value)">
-            <option value="2026-03-04_11-16-34" selected>2026:03:04 11:16:34</option><option value="2026-03-04_10-57-31" >2026:03:04 10:57:31</option><option value="2026-03-04_10-55-56" >2026:03:04 10:55:56</option><option value="2026-03-04_10-16-17" >2026:03:04 10:16:17</option><option value="2026-03-02_21-49-31" >2026:03:02 21:49:31</option><option value="2026-02-25_16-02-56" >2026:02:25 16:02:56</option><option value="2026-02-25_15-09-11" >2026:02:25 15:09:11</option><option value="2026-02-25_11-23-09" >2026:02:25 11:23:09</option><option value="2026-02-25_10-56-28" >2026:02:25 10:56:28</option><option value="2026-02-24_16-44-55" >2026:02:24 16:44:55</option><option value="2026-02-24_16-34-23" >2026:02:24 16:34:23</option><option value="2026-02-24_15-20-05" >2026:02:24 15:20:05</option><option value="2026-02-24_14-56-42" >2026:02:24 14:56:42</option><option value="2026-02-24_14-46-41" >2026:02:24 14:46:41</option><option value="2026-02-24_14-38-26" >2026:02:24 14:38:26</option><option value="2026-02-24_14-12-15" >2026:02:24 14:12:15</option><option value="2026-02-24_11-28-49" >2026:02:24 11:28:49</option><option value="2026-02-24_11-17-11" >2026:02:24 11:17:11</option><option value="2026-02-24_10-43-18" >2026:02:24 10:43:18</option><option value="2026-02-24_09-52-22" >2026:02:24 09:52:22</option><option value="2026-02-23_20-10-30" >2026:02:23 20:10:30</option><option value="2026-02-23_19-40-42" >2026:02:23 19:40:42</option><option value="2026-02-23_19-28-50" >2026:02:23 19:28:50</option><option value="2026-02-23_19-28-24" >2026:02:23 19:28:24</option><option value="2026-02-23_19-27-55" >2026:02:23 19:27:55</option><option value="2026-02-23_16-13-19" >2026:02:23 16:13:19</option><option value="2026-02-23_13-53-17" >2026:02:23 13:53:17</option><option value="2026-02-19_12-49-47" >2026:02:19 12:49:47</option><option value="2026-02-19_12-42-37" >2026:02:19 12:42:37</option><option value="2026-02-19_12-33-54" >2026:02:19 12:33:54</option>
+            <option value="2026-03-04_13-04-53" selected>2026:03:04 13:04:53</option><option value="2026-03-04_12-26-57" >2026:03:04 12:26:57</option><option value="2026-03-04_12-23-49" >2026:03:04 12:23:49</option><option value="2026-03-04_12-12-56" >2026:03:04 12:12:56</option><option value="2026-03-04_11-16-34" >2026:03:04 11:16:34</option><option value="2026-03-04_10-57-31" >2026:03:04 10:57:31</option><option value="2026-03-04_10-55-56" >2026:03:04 10:55:56</option><option value="2026-03-04_10-16-17" >2026:03:04 10:16:17</option><option value="2026-03-02_21-49-31" >2026:03:02 21:49:31</option><option value="2026-02-25_16-02-56" >2026:02:25 16:02:56</option><option value="2026-02-25_15-09-11" >2026:02:25 15:09:11</option><option value="2026-02-25_11-23-09" >2026:02:25 11:23:09</option><option value="2026-02-25_10-56-28" >2026:02:25 10:56:28</option><option value="2026-02-24_16-44-55" >2026:02:24 16:44:55</option><option value="2026-02-24_16-34-23" >2026:02:24 16:34:23</option><option value="2026-02-24_15-20-05" >2026:02:24 15:20:05</option><option value="2026-02-24_14-56-42" >2026:02:24 14:56:42</option><option value="2026-02-24_14-46-41" >2026:02:24 14:46:41</option><option value="2026-02-24_14-38-26" >2026:02:24 14:38:26</option><option value="2026-02-24_14-12-15" >2026:02:24 14:12:15</option><option value="2026-02-24_11-28-49" >2026:02:24 11:28:49</option><option value="2026-02-24_11-17-11" >2026:02:24 11:17:11</option><option value="2026-02-24_10-43-18" >2026:02:24 10:43:18</option><option value="2026-02-24_09-52-22" >2026:02:24 09:52:22</option><option value="2026-02-23_20-10-30" >2026:02:23 20:10:30</option><option value="2026-02-23_19-40-42" >2026:02:23 19:40:42</option><option value="2026-02-23_19-28-50" >2026:02:23 19:28:50</option><option value="2026-02-23_19-28-24" >2026:02:23 19:28:24</option><option value="2026-02-23_19-27-55" >2026:02:23 19:27:55</option><option value="2026-02-23_16-13-19" >2026:02:23 16:13:19</option>
         </select>
     </div>
     
+                    
+    <button class="run-btn" id="runBtn" onclick="runMonitoring()">🚀 지금 실행</button>
+    
+                </div>
             </div>
         </div>
         
@@ -659,7 +705,7 @@
                     
                     <div class="item">
                         <div class="item-main">
-                            <a href="https://ceo.baemin.com/guide/14387" target="_blank" class="item-title">소식 3월 첫째 주 배민소식 (배민페스타, 상위 10% 가게 전략, 주문 집중 시간대 활용) 1시간 전</a>
+                            <a href="https://ceo.baemin.com/guide/14387" target="_blank" class="item-title">소식 3월 첫째 주 배민소식 (배민페스타, 상위 10% 가게 전략, 주문 집중 시간대 활용) 3시간 전</a>
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
@@ -969,6 +1015,14 @@
                     
                     <div class="item">
                         <div class="item-main">
+                            <a href="https://ceo.baemin.com/franchise/brand-detail/388" target="_blank" class="item-title">언제나 점주를 생각하는 치킨 브랜드 - 초기비용 면제 총 3055만원 지원</a>
+                            <span class="item-status status-ok">✅ 정상</span>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="item">
+                        <div class="item-main">
                             <a href="https://ceo.baemin.com/affiliates/14381" target="_blank" class="item-title">우아한 사장님 자녀 장학금 최대 400만원 - 사장님 자녀의 장학금을 지원합니다</a>
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
@@ -978,14 +1032,6 @@
                     <div class="item">
                         <div class="item-main">
                             <a href="https://ceo.baemin.com/affiliates/14367?utm_source=ceo&utm_medium=non_display&utm_content=260302_my_banner_vfd" target="_blank" class="item-title">3.2-3.29 할인 대축제 ‘배민페스타’ - 즉시할인 마케팅에 집중해보세요!</a>
-                            <span class="item-status status-ok">✅ 정상</span>
-                        </div>
-                        
-                    </div>
-                    
-                    <div class="item">
-                        <div class="item-main">
-                            <a href="https://ceo.baemin.com/franchise/brand-detail/388" target="_blank" class="item-title">언제나 점주를 생각하는 치킨 브랜드 - 초기비용 면제 총 3055만원 지원</a>
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
@@ -1037,10 +1083,59 @@
             const content = btn.nextElementSibling;
             if (content.style.display === 'none') {
                 content.style.display = 'block';
-                btn.textContent = '🔼 AI 제안 숨기기';
+                if (!btn.classList.contains('ai-toggle-btn-error')) {
+                    btn.textContent = '🔼 AI 제안 숨기기';
+                }
             } else {
                 content.style.display = 'none';
-                btn.textContent = '💡 AI 제안 보기';
+                if (!btn.classList.contains('ai-toggle-btn-error')) {
+                    btn.textContent = '💡 AI 제안 보기';
+                }
+            }
+        }
+
+        async function runMonitoring() {
+            const btn = document.getElementById('runBtn');
+            if (!btn) return;
+
+            // localStorage에서 토큰 가져오기 (없으면 입력창)
+            let token = localStorage.getItem('github_run_token');
+            if (!token) {
+                token = prompt('GitHub Personal Access Token을 입력하세요:\n(Actions: write 권한 필요, 최초 1회만 입력됩니다)');
+                if (!token) return;
+                localStorage.setItem('github_run_token', token);
+            }
+
+            if (!confirm('모니터링을 즉시 실행할까요?\n(약 2-3분 소요됩니다)')) return;
+            btn.disabled = true;
+            btn.textContent = '⏳ 실행 요청 중...';
+            try {
+                const resp = await fetch(
+                    'https://api.github.com/repos/kwkimd/baemmin-monitor/actions/workflows/monitor.yml/dispatches',
+                    {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'token ' + token,
+                            'Accept': 'application/vnd.github+json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ref: 'main'})
+                    }
+                );
+                if (resp.status === 204) {
+                    btn.textContent = '✅ 실행 시작됨!';
+                    setTimeout(() => { btn.disabled = false; btn.textContent = '🚀 지금 실행'; }, 5000);
+                } else if (resp.status === 401) {
+                    localStorage.removeItem('github_run_token');
+                    btn.textContent = '❌ 토큰 오류 (재클릭시 재입력)';
+                    setTimeout(() => { btn.disabled = false; btn.textContent = '🚀 지금 실행'; }, 3000);
+                } else {
+                    btn.textContent = '❌ 실패 (' + resp.status + ')';
+                    setTimeout(() => { btn.disabled = false; btn.textContent = '🚀 지금 실행'; }, 3000);
+                }
+            } catch(e) {
+                btn.textContent = '❌ 오류: ' + e.message;
+                setTimeout(() => { btn.disabled = false; btn.textContent = '🚀 지금 실행'; }, 3000);
             }
         }
     </script>
