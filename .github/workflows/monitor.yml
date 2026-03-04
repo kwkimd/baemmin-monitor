@@ -13,46 +13,46 @@ jobs:
 
     steps:
       - name: Diagnostics
-        shell: powershell
+        shell: cmd
         run: |
-          $pyPath = "C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe"
-          Write-Output "Python exists: $(Test-Path $pyPath)"
-          & $pyPath --version
+          SET pyPath=C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe
+          echo Python path: %pyPath%
+          "%pyPath%" --version
 
       - name: Install dependencies
-        shell: powershell
+        shell: cmd
         working-directory: C:\baemin
         run: |
-          $pyPath = "C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe"
-          & $pyPath -m pip install -r requirements.txt --quiet
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          SET pyPath=C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe
+          "%pyPath%" -m pip install -r requirements.txt --quiet
+          if %errorlevel% neq 0 exit /b %errorlevel%
 
       - name: Run monitoring (main.py)
-        shell: powershell
+        shell: cmd
         working-directory: C:\baemin
         run: |
-          $pyPath = "C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe"
-          Write-Output "[DIAG] start=$(Get-Date -Format 'HH:mm:ss.fff')"
-          & $pyPath -u "C:\baemin_runner\run_main.py"
-          $exitCode = $LASTEXITCODE
-          Write-Output "[DIAG] exit=$exitCode time=$(Get-Date -Format 'HH:mm:ss.fff')"
-          Write-Output "--- stdout ---"
-          if (Test-Path "C:\baemin_runner\ga_main_out.txt") { Get-Content "C:\baemin_runner\ga_main_out.txt" }
-          Write-Output "--- stderr ---"
-          if (Test-Path "C:\baemin_runner\ga_main_err.txt") { Get-Content "C:\baemin_runner\ga_main_err.txt" }
-          exit $exitCode
+          SET pyPath=C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe
+          echo [DIAG] start=%TIME%
+          "%pyPath%" -u "C:\baemin_runner\run_main.py"
+          SET exitCode=%errorlevel%
+          echo [DIAG] exit=%exitCode% time=%TIME%
+          echo --- stdout ---
+          if exist "C:\baemin_runner\ga_main_out.txt" type "C:\baemin_runner\ga_main_out.txt"
+          echo --- stderr ---
+          if exist "C:\baemin_runner\ga_main_err.txt" type "C:\baemin_runner\ga_main_err.txt"
+          exit /b %exitCode%
 
       - name: Run AI analysis (run_with_ai.py)
-        shell: powershell
+        shell: cmd
         working-directory: C:\baemin
         env:
           ENABLE_AI: "true"
         run: |
-          $pyPath = "C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe"
-          & $pyPath -u "C:\baemin_runner\run_ai.py"
-          $exitCode = $LASTEXITCODE
-          Write-Output "--- stdout ---"
-          if (Test-Path "C:\baemin_runner\ga_ai_out.txt") { Get-Content "C:\baemin_runner\ga_ai_out.txt" }
-          Write-Output "--- stderr ---"
-          if (Test-Path "C:\baemin_runner\ga_ai_err.txt") { Get-Content "C:\baemin_runner\ga_ai_err.txt" }
-          exit $exitCode
+          SET pyPath=C:\Users\woowahan\AppData\Local\Python\pythoncore-3.14-64\python.exe
+          "%pyPath%" -u "C:\baemin_runner\run_ai.py"
+          SET exitCode=%errorlevel%
+          echo --- stdout ---
+          if exist "C:\baemin_runner\ga_ai_out.txt" type "C:\baemin_runner\ga_ai_out.txt"
+          echo --- stderr ---
+          if exist "C:\baemin_runner\ga_ai_err.txt" type "C:\baemin_runner\ga_ai_err.txt"
+          exit /b %exitCode%
