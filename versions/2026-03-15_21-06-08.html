@@ -567,6 +567,13 @@
                 </div>
                 <div class="header-actions">
                     
+    <div class="version-selector">
+        <label for="version-select">📂 버전 선택:</label>
+        <select id="version-select" onchange="changeVersion(this.value)">
+            <option value="2026-03-15_21-06-08" selected>2026:03:15 21:06:08</option><option value="2026-03-13_22-12-17" >2026:03:13 22:12:17</option><option value="2026-03-13_08-15-43" >2026:03:13 08:15:43</option><option value="2026-03-13_08-13-16" >2026:03:13 08:13:16</option><option value="2026-03-12_09-46-54" >2026:03:12 09:46:54</option><option value="2026-03-11_09-49-34" >2026:03:11 09:49:34</option><option value="2026-03-11_09-45-33" >2026:03:11 09:45:33</option><option value="2026-03-09_14-18-42" >2026:03:09 14:18:42</option><option value="2026-03-09_12-35-43" >2026:03:09 12:35:43</option><option value="2026-03-09_12-31-18" >2026:03:09 12:31:18</option><option value="2026-03-05_14-11-48" >2026:03:05 14:11:48</option><option value="2026-03-05_12-26-41" >2026:03:05 12:26:41</option><option value="2026-03-04_16-09-20" >2026:03:04 16:09:20</option><option value="2026-03-04_13-12-32" >2026:03:04 13:12:32</option><option value="2026-03-04_13-04-53" >2026:03:04 13:04:53</option><option value="2026-03-04_12-26-57" >2026:03:04 12:26:57</option><option value="2026-03-04_12-23-49" >2026:03:04 12:23:49</option><option value="2026-03-04_12-12-56" >2026:03:04 12:12:56</option><option value="2026-03-04_11-16-34" >2026:03:04 11:16:34</option><option value="2026-03-04_10-57-31" >2026:03:04 10:57:31</option><option value="2026-03-04_10-55-56" >2026:03:04 10:55:56</option><option value="2026-03-04_10-16-17" >2026:03:04 10:16:17</option><option value="2026-03-02_21-49-31" >2026:03:02 21:49:31</option><option value="2026-02-25_16-02-56" >2026:02:25 16:02:56</option><option value="2026-02-25_15-09-11" >2026:02:25 15:09:11</option><option value="2026-02-25_11-23-09" >2026:02:25 11:23:09</option><option value="2026-02-25_10-56-28" >2026:02:25 10:56:28</option><option value="2026-02-24_16-44-55" >2026:02:24 16:44:55</option><option value="2026-02-24_16-34-23" >2026:02:24 16:34:23</option><option value="2026-02-24_15-20-05" >2026:02:24 15:20:05</option>
+        </select>
+    </div>
+    
                     
     <button class="run-btn" id="runBtn" onclick="runMonitoring()">🚀 지금 실행</button>
     
@@ -870,6 +877,40 @@
                             <span class="item-status status-error">⚠️ 오류(403)</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">요즘 뜨는 '봄 메뉴' 키워드 퀴즈 풀고, 우리 가게 매출 올릴 쿠폰 받기!</div>
+                                        <div class="ai-reason">사장님의 궁극적인 목표인 '매출'을 직접적으로 언급하여 행동을 유도합니다. '요즘 뜨는', '우리 가게' 등의 표현으로 개인화되고 시의성 있는 정보임을 강조하여 클릭률을 높일 수 있습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">사장님의 '장사 센스'는 몇 점? 2024 봄 트렌드 퀴즈 도전!</div>
+                                        <div class="ai-reason">'레벨 테스트'라는 딱딱한 표현 대신 '장사 센스'라는 흥미로운 단어를 사용하여 게임처럼 재미있게 참여를 유도합니다. 궁금증을 자아내는 질문 형식으로 구성하여 사장님의 도전 욕구를 자극합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">딱 3분! 봄 메뉴 트렌드 퀴즈 풀고, 광고비 할인 쿠폰 바로 받으세요.</div>
+                                        <div class="ai-reason">바쁜 사장님들을 위해 '딱 3분'이라는 구체적인 시간을 제시하여 참여 부담을 크게 낮춥니다. '광고비 할인'처럼 쿠폰의 종류를 명확히 하여 실질적인 혜택을 강조하고, '바로'라는 단어로 즉각적인 보상을 약속하여 행동 전환율을 높입니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                     <div class="item">
@@ -878,6 +919,40 @@
                             <span class="item-status status-error">⚠️ 오류(403)</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.5</span>
+                                        </div>
+                                        <div class="ai-title">사장님, 3월 식자재 비용 최대 85% 아끼세요! 역대급 쿠폰팩까지</div>
+                                        <div class="ai-reason">사장님의 가장 큰 관심사인 '비용 절감'을 직접적으로 언급하여 시선을 사로잡습니다. '최대 85%'라는 가장 강력한 숫자 혜택을 전면에 내세우고, '역대급 쿠폰팩'으로 추가 혜택에 대한 궁금증을 유발하여 간결하면서도 설득력 있게 구성했습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">[3월 장보는날] 할인율은 85%, 쿠폰은 무제한으로!</div>
+                                        <div class="ai-reason">'[이벤트명]' 형식으로 캠페인을 명확히 인지시키고, 'A는 B, C는 D' 형태의 대구법을 사용하여 리듬감과 가독성을 높였습니다. 85% 할인과 무제한 쿠폰이라는 핵심 혜택 두 가지를 명료하게 각인시키는 효과가 있습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">역대급 할인+쿠폰 등장! 배민상회 3월 장보는날 오픈</div>
+                                        <div class="ai-reason">가장 강력한 키워드인 '역대급'과 '할인+쿠폰'을 조합하여 혜택의 규모를 강조하고 호기심을 자극합니다. 구체적인 숫자를 빼는 대신, 혜택의 크기를 상상하게 만들어 클릭 후 자세한 내용을 확인하도록 유도하는 전략입니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                     <div class="item">
@@ -886,6 +961,40 @@
                             <span class="item-status status-error">⚠️ 오류(403)</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">사장님, 인기 프랜차이즈 창업 지원금 받고 시작하세요!</div>
+                                        <div class="ai-reason">사장님을 직접 호칭하여 주목도를 높이고, '창업 지원금'이라는 가장 큰 혜택을 문장 맨 앞에 두어 핵심 내용을 바로 인지시킵니다. '시작하세요'라는 간결하고 명확한 동사로 행동을 유도합니다. (스타벅스 쿠폰은 상세 페이지에서 언급)</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">상담만 해도 스타벅스 100%! 인기 프랜차이즈 창업 지원금도 놓치지 마세요.</div>
+                                        <div class="ai-reason">행동의 허들을 낮추는 '상담만 해도'라는 문구와 '100% 증정'이라는 확신을 주는 표현으로 클릭을 유도합니다. 작은 혜택으로 참여를 유도한 뒤, 더 큰 혜택인 '창업 지원금'을 제시하여 기대감을 높이는 구조입니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 9.5</span>
+                                        </div>
+                                        <div class="ai-title">[배민사장님 특별지원] 지금 신청하면 창업지원금+스타벅스 즉시 증정</div>
+                                        <div class="ai-reason">'[배민사장님 특별지원]' 문구를 추가하여 사장님만을 위한 혜택임을 강조하고 소속감을 부여합니다. '지금 신청하면', '즉시 증정'과 같은 긴급성과 즉시성을 강조하는 단어를 사용하여 망설임 없이 바로 행동하도록 만듭니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                     <div class="item">
@@ -894,6 +1003,40 @@
                             <span class="item-status status-error">⚠️ 오류(403)</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">클릭이 주문으로! 상위 10% 가게의 영업 비밀</div>
+                                        <div class="ai-reason">'클릭'을 최종 목표인 '주문'과 직접 연결하여 사장님들이 얻을 수 있는 실질적인 혜택을 명확하게 보여줍니다. '리포트' 대신 더 현실적이고 흥미로운 '영업 비밀'이라는 단어를 사용하여 주목도를 높였습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 8.8</span>
+                                        </div>
+                                        <div class="ai-title">“왜 우리 가게만?” 답답하셨죠? 상위 10%의 클릭 비결 공개</div>
+                                        <div class="ai-reason">사장님들이 흔히 겪는 문제(Pain Point)를 질문 형식으로 던져 공감대를 형성하고 즉각적인 관심을 유도합니다. '답답하셨죠?'라는 감성적인 표현으로 클릭을 유도하고, '비결 공개'라는 말로 해결책을 제시할 것을 암시하여 기대감을 높입니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">고객 눈길을 끄는 ‘이것’! 상위 10% 가게의 데이터 분석</div>
+                                        <div class="ai-reason">‘이것’이라는 단어를 사용하여 구체적인 내용에 대한 궁금증을 극대화하는 '호기심 기법'을 활용했습니다. 또한 '비법' 대신 '데이터 분석'이라는 표현으로 정보의 신뢰성과 전문성을 강조하여, 데이터 기반의 확실한 정보를 얻고 싶은 사장님들에게 효과적으로 어필할 수 있습니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                     <div class="item">
@@ -902,6 +1045,40 @@
                             <span class="item-status status-error">⚠️ 오류(403)</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">사장님, 배달 차량 보험료! 1분만 확인하고 1만원 바로 받으세요</div>
+                                        <div class="ai-reason">사장님을 직접 호칭하고 '배달 차량'이라는 키워드를 사용해 사장님의 사업과 직접적인 연관성을 부여했습니다. '1분', '바로'와 같은 단어로 바쁜 사장님들에게 시간적 부담이 없다는 점과 즉각적인 혜택을 강조하여 행동을 유도합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">터치 한 번에 1만원! 바쁜 사장님을 위한 간편 보험료 조회</div>
+                                        <div class="ai-reason">'터치 한 번'이라는 표현으로 행동의 허들을 극단적으로 낮추고, '바쁜 사장님'을 언급하며 타겟에 대한 공감대를 형성합니다. 가장 매력적인 혜택인 '1만원'을 문장 맨 앞에 두어 시선을 사로잡는 효과가 있습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">혹시 내 차 보험료, 더 내고 계신가요? 확인만 해도 1만원 즉시 지급</div>
+                                        <div class="ai-reason">질문을 던져 '혹시 내가 손해 보고 있지는 않을까?'라는 심리를 자극하고, 비용 절감에 대한 니즈를 환기시킵니다. '확인만 해도'라는 말로 부담 없이 참여할 수 있음을 강조하여 클릭률을 높일 수 있습니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                     <div class="item">
@@ -910,6 +1087,40 @@
                             <span class="item-status status-error">⚠️ 오류(403)</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">사장님, 가게용품 최저가! 배민상회에서 한번에 해결하세요</div>
+                                        <div class="ai-reason">타겟('사장님')을 명확히 하고, '최저가', '한번에 해결'이라는 키워드로 비용과 시간 절약이라는 핵심 가치를 직관적으로 전달합니다. 사장님들의 가장 큰 고민을 직접적으로 해결해주는 뉘앙스를 줍니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.5</span>
+                                        </div>
+                                        <div class="ai-title">배달용기부터 식자재까지, 특가로 한번에! 가게용품은 배민상회</div>
+                                        <div class="ai-reason">사장님들에게 가장 익숙한 '배달용기', '식자재'라는 구체적인 품목을 예시로 들어 공감대를 형성하고, 'A부터 B까지' 구문을 통해 다양한 상품 구색을 효과적으로 어필합니다. 간결하고 리듬감이 있어 주목도를 높입니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">시간 아끼는 가게용품 준비, 배민상회 특가로 끝내세요!</div>
+                                        <div class="ai-reason">단순한 가격 할인을 넘어 '시간 절약'이라는 또 다른 중요한 가치를 강조하여 바쁜 사장님들의 공감을 얻을 수 있습니다. '끝내세요!'라는 강력하고 명확한 Call-to-Action(행동 유도)으로 클릭을 유도합니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                     <div class="item">
@@ -918,6 +1129,40 @@
                             <span class="item-status status-error">⚠️ 오류(403)</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.2</span>
+                                        </div>
+                                        <div class="ai-title">[사장님 혜택] 우리 아이 장학금, 최대 400만원 지원</div>
+                                        <div class="ai-reason">말머리에 [사장님 혜택]을 넣어 배너의 성격을 명확히 하고, 바쁜 사장님들의 시선을 빠르게 사로잡습니다. '사장님 자녀'라는 객관적인 표현 대신 '우리 아이'라는 친근한 단어를 사용하여 감성적인 연결을 유도하고, 핵심 혜택(최대 400만원)을 명확하게 전달합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">사장님, 자녀 학비 걱정 덜어드려요! 최대 400만원 장학금 신청하세요</div>
+                                        <div class="ai-reason">사장님을 직접 부르며 말을 거는 방식으로 주목도를 높이고, '학비 걱정'이라는 구체적인 고충을 언급하여 공감대를 형성합니다. '신청하세요'라는 명확한 행동 유도(CTA) 문구를 포함하여 단순 정보 전달을 넘어 실제 참여로 이어질 가능성을 높입니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">사장님의 자부심, 자녀의 꿈을 응원합니다! 배민 장학금, 최대 400만원</div>
+                                        <div class="ai-reason">'자부심', '꿈'과 같은 감성적인 키워드를 사용하여 장학금의 금전적 가치 이상의 의미를 부여합니다. 이는 배민과 사장님 간의 긍정적인 파트너십을 강조하며 브랜드 이미지를 제고하는 효과가 있습니다. 단순 혜택이 아닌, 함께 성장하는 동반자라는 메시지를 전달합니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                 </div>
@@ -970,6 +1215,40 @@
                             <span class="item-status status-error">⚠️ 오류(403)</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.5</span>
+                                        </div>
+                                        <div class="ai-title">사장님, 3월 식자재 원가 최대 85% 아끼세요!</div>
+                                        <div class="ai-reason">타겟('사장님')을 직접 호명하여 주목도를 높이고, '할인'이라는 단순 사실 대신 '원가를 아낀다'는 구체적인 비즈니스 이점을 제시했습니다. 이는 사장님의 가장 큰 관심사인 비용 절감에 직접적으로 소구하여 강력한 동기를 부여합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">역대급 3월 장보는날! 가게 마진이 달라집니다</div>
+                                        <div class="ai-reason">'역대급'이라는 단어로 이벤트의 규모와 특별함을 강조하여 호기심을 자극합니다. 또한, '최대 85% 할인'이라는 숫자 대신 '가게 마진이 달라진다'는 결과 중심의 메시지를 통해 사장님이 얻게 될 최종적인 가치를 상상하게 만듭니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">놓치면 손해! 3월 식자재비, 최대 85% 아낄 기회</div>
+                                        <div class="ai-reason">'놓치면 손해'라는 표현을 사용하여 손실 회피 심리를 자극하고, 이벤트의 긴급성과 중요성을 부각합니다. '할인'을 '아낄 기회'로 표현하여 사장님이 주체적으로 이득을 취해야 한다는 행동을 촉구하는 효과가 있습니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                 </div>
@@ -1246,6 +1525,40 @@
                             <span class="item-status status-error">⚠️ 오류(403)</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">봄 매출 올리는 '이 키워드', 퀴즈로 확인하고 쿠폰 받으세요!</div>
+                                        <div class="ai-reason">사장님의 가장 큰 관심사인 '매출'을 전면에 내세워 클릭을 유도합니다. '이 키워드'라는 표현으로 궁금증을 자아내고, '테스트' 대신 '확인'이라는 가벼운 단어를 사용해 부담을 줄였습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">사장님, 봄 장사 준비되셨나요? 트렌드 퀴즈 풀고 쿠폰 챙기세요!</div>
+                                        <div class="ai-reason">사장님을 직접 부르며 질문을 던지는 방식으로 주목도를 높입니다. '봄 장사 준비'라는 시의성 있는 주제로 공감대를 형성하고, '챙기세요'라는 표현으로 놓치면 안 될 혜택임을 강조합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">재미로 보는 봄 메뉴 트렌드! 퀴즈 풀고 광고 쿠폰 바로 GET</div>
+                                        <div class="ai-reason">'재미로 보는'이라는 문구를 사용해 심리적 장벽을 낮추고 가볍게 참여할 수 있도록 유도합니다. '광고 쿠폰'이라고 명확히 제시하고 '바로 GET'이라는 표현으로 즉각적인 보상을 강조하여 행동을 촉진합니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                     <div class="item">
@@ -1254,6 +1567,40 @@
                             <span class="item-status status-error">⚠️ 오류(403)</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.5</span>
+                                        </div>
+                                        <div class="ai-title">사장님, 자녀 장학금 400만원! 놓치지 마세요</div>
+                                        <div class="ai-reason">가장 중요한 대상(사장님)과 핵심 혜택(자녀 장학금 400만원)을 맨 앞에 배치하여 즉각적인 인지를 돕습니다. '놓치지 마세요'라는 문구로 가벼운 긴박감을 주어 클릭을 유도하는, 가장 직접적이고 효과적인 광고 카피입니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">사장님의 땀방울, 자녀의 꿈으로! 장학금 400만원 신청</div>
+                                        <div class="ai-reason">사장님의 노고('땀방울')와 자녀의 미래('꿈')를 연결하여 감성적인 공감대를 형성합니다. 단순한 금전적 혜택을 넘어, 자녀를 위한 가치 있는 투자라는 인식을 주어 긍정적인 반응을 이끌어낼 수 있습니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">혹시 우리 아이도? 배민사장님 자녀 장학금 400만원</div>
+                                        <div class="ai-reason">'혹시 우리 아이도?'라는 질문 형식으로 사장님의 호기심을 자극하고, '나와 관련된 일'이라는 인식을 심어줍니다. 정보를 확인해보고 싶은 심리를 자극하여 배너 클릭률을 높이는 데 효과적입니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                 </div>
@@ -1272,6 +1619,40 @@
                             <span class="item-status status-ok">✅ 정상</span>
                         </div>
                         
+                                <div class="ai-suggestions-container">
+                                    <button class="ai-toggle-btn" onclick="toggleAI(this)">💡 AI 제안 보기</button>
+                                    <div class="ai-content" style="display:none;">
+                                        
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 1</span>
+                                            <span class="ai-score">★ 9.0</span>
+                                        </div>
+                                        <div class="ai-title">데이터가 증명한 상위 10% 가게의 '주문 부르는' 노출 공식</div>
+                                        <div class="ai-reason">'노출'을 넘어 '주문'이라는 최종 목표를 직접적으로 언급하여 사장님의 관심을 즉각적으로 유도합니다. '공식'이라는 단어는 따라하기 쉬운 명확한 해법이 있음을 암시하여 실용성을 강조합니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 2</span>
+                                            <span class="ai-score">★ 9.5</span>
+                                        </div>
+                                        <div class="ai-title">상위 10% 가게는 '이것'부터 바꿉니다: 주문 수 20% 올리는 노출 비법</div>
+                                        <div class="ai-reason">'이것'이라는 표현으로 호기심을 자극하고, '20%'라는 구체적인 수치를 제시하여 기대효과를 명확하게 보여줍니다. 행동 변화를 촉구하는 직접적인 화법으로 클릭 가능성을 높입니다.</div>
+                                    </div>
+                                    
+                                    <div class="ai-suggestion">
+                                        <div class="ai-sug-header">
+                                            <span class="ai-badge">AI 제안 3</span>
+                                            <span class="ai-score">★ 8.5</span>
+                                        </div>
+                                        <div class="ai-title">따라만 해도 상위 10%! 데이터로 찾은 우리 가게 노출 전략</div>
+                                        <div class="ai-reason">'따라만 해도'라는 문구로 실행의 허들을 낮추고, '우리 가게'라는 표현을 사용하여 사장님이 자신의 상황에 쉽게 대입하고 공감할 수 있도록 만듭니다. 긍정적이고 희망적인 메시지를 전달합니다.</div>
+                                    </div>
+                                    
+                                    </div>
+                                </div>
+                                
                     </div>
                     
                 </div>
